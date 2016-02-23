@@ -1,0 +1,15 @@
+<svg width="269.5" fill="none" xmlns="http://www.w3.org/2000/svg" height="68.5" viewBox="31 -158 269.5 68.5" stroke-linejoin="round" stroke-linecap="round">
+<g transform="scale(1 -1)">
+<g stroke="#000">
+<path d="m45,135 0-45"/>
+<path d="m45,90 90,0"/>
+<path d="m135,90 0,45"/>
+<path d="m135,135-90,0"/>
+<path d="m210,90 90,0"/>
+<path d="m300,90 0,45"/>
+<path d="m300,135-90,0"/>
+<path d="m210,157.5 0-67.5"/>
+</g>
+<text x="31.5" y="-130.5" dx="0" font-family="Arial" fill="#000" dy="9" line-height="1.1" transform="matrix(-.64945 -.76041 .76041 -.64945 569.84851 325.70376)" font-size="12.6">2.</text>
+</g>
+</svg>

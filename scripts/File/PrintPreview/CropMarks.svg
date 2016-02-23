@@ -1,0 +1,13 @@
+<svg width="512" xmlns="http://www.w3.org/2000/svg" height="512" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs/>
+<g fill="none" stroke-linecap="square" color="#000" transform="translate(0 464)">
+<g stroke="#5151ff" stroke-width="16">
+<path d="m48-208 416,0"/>
+<path d="m256-416 0,416"/>
+</g>
+<g stroke="#000080" stroke-width="64">
+<path d="m256-117 0-182"/>
+<path d="m165-208 182,0"/>
+</g>
+</g>
+</svg>
