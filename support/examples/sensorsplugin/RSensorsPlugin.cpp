@@ -77,7 +77,7 @@ void MySensorsClass::test(){
         BoundingCoo[i][1] = (int) this->boundingBox[i].getY();
     }
 
-    ProblemData& ins=(*LoadData(BoundingCoo));
+    ProblemData& ins=(*LoadData(BoundingCoo, this->sensorRange));
 }
 
 /**
@@ -93,17 +93,20 @@ QScriptValue RSensorsPlugin::createMySensorsClass(QScriptContext* context, QScri
         MySensorsClass* cppResult = new MySensorsClass();
         return engine->newQObject(context->thisObject(), cppResult);
     }
-    else if(context->argumentCount()==3 && context->argument(0).isArray()) {
+    else if(context->argumentCount()==4 && context->argument(3).isArray()) {
         MySensorsClass* cppResult = new MySensorsClass();
-        // convert ECMAScript array to QList<RVector>:
         QList<RVector> fP;
         QList<RVector> cand;
         QList<RVector> box;
-        REcmaHelper::fromScriptValue(engine, context->argument(0), fP);
+        int range;
+        // convert ECMAScript array to QList<RVector>:
+        range = context->argument(0).toInt32();
+        cppResult->sensorRange = range;
+        REcmaHelper::fromScriptValue(engine, context->argument(1), fP);
         cppResult->floorPoints = fP;
-        REcmaHelper::fromScriptValue(engine, context->argument(1), cand);
+        REcmaHelper::fromScriptValue(engine, context->argument(2), cand);
         cppResult->candidates = cand;
-        REcmaHelper::fromScriptValue(engine, context->argument(2), box);
+        REcmaHelper::fromScriptValue(engine, context->argument(3), box);
         cppResult->boundingBox = box;
         return engine->newQObject(context->thisObject(), cppResult);
     }

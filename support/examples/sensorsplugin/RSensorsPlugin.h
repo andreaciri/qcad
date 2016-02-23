@@ -8,7 +8,6 @@
 #include "RGuiAction.h"
 #include "RMainWindow.h"
 #include "RPluginInterface.h"
-#include "conversion.h"
 #include "problem_data.hpp"
 
 class MyAction : public RActionAdapter {
@@ -40,7 +39,7 @@ class MySensorsClass : public QObject {
 Q_OBJECT
 public:
     MySensorsClass() : QObject() {}
-    Conversion conversion;
+    int sensorRange;
     QList<RVector> floorPoints;
     QList<RVector> candidates;
     QList<RVector> boundingBox;

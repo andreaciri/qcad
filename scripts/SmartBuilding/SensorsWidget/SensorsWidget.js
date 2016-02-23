@@ -91,7 +91,7 @@ SensorsWidget.prototype.beginEvent = function() {
     appWin.handleUserMessage("Candidate points: " + candidates);
     appWin.handleUserMessage("Bounding box corners: " + perimeter);
 
-    var sensorPlugin = new MySensorsClass(floorPoints, candidates, perimeter);
+    var sensorPlugin = new MySensorsClass(sensorRange, floorPoints, candidates, perimeter);
     sensorPlugin.test();
 
     dialog.destroy();

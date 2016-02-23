@@ -22,7 +22,7 @@ typedef struct _problemdata ProblemData;
 
 
 
-ProblemData *LoadData (int boundingBox[4][2]);
+ProblemData *LoadData (int boundingBox[4][2], int range);
 
 
 #endif

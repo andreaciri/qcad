@@ -3,7 +3,7 @@
 
 
 
-ProblemData *LoadData (int boundingBox[4][2])
+ProblemData *LoadData (int boundingBox[4][2], int range)
 {
     ProblemData *pPD;
     int r,c, m, i;
