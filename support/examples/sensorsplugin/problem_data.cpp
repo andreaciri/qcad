@@ -1,12 +1,13 @@
+#include <math.h>
 #include "problem_data.hpp"
-
-
 
 
 ProblemData *LoadData (int boundingBox[4][2], int range)
 {
     ProblemData *pPD;
     int r,c, m, i;
+    int *V;
+    int count;
 
     int boxLenght = boundingBox[1][0] - boundingBox[0][0];
     int boxHeight = boundingBox[2][1] - boundingBox[1][1];
@@ -29,20 +30,17 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
         }
     }
 
-
     pPD = (ProblemData *) calloc(1,sizeof(ProblemData));
 
     pPD->nr = nr;
     pPD->nc = nc;
     pPD->nm = 1;
 
-
     pPD->card = (int *) calloc(pPD->nm+1,sizeof(int));
     pPD->card[1] = 4;
 
     pPD->b = (int *) calloc(pPD->nc+1,sizeof(int));
     pPD->b[1] = 1;
-
 
     pPD->weight = (double **) calloc(pPD->nm+1,sizeof(double *));
 
@@ -52,10 +50,7 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
 
     }
 
-
-
     pPD->Copertura = (int ***) calloc(pPD->nm+1,sizeof(int **));
-
 
     for (m = 1; m <= pPD->nm; m++)
     {
@@ -70,43 +65,44 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
         pPD->row_deg[m] = (int *) calloc(pPD->nr+1,sizeof(int));
     }
 
+    // V: temporary array that holds covered centers
+    V = (int *) calloc(pPD->nr+1,sizeof(int));
 
     for (m = 1; m <= pPD->nm; m++)
         for (c = 1; c <= pPD->nc; c++)
         {
+            count = 0;
+            for (r = 1; r <= pPD->nr; r++){
 
-//            pPD->Copertura[m][c] = (int *) calloc(cont+1,sizeof(int));
+                if (distance(columns[c-1], rows[r-1]) < range){
+                    // Position r is covered by forniture c
+                    // cont = number of positions covered by c in mode m
+                    V[count] = r;
+                    count++;
+                }
+            }
+            pPD->Copertura[m][c] = (int *) calloc(count+1,sizeof(int));
+            pPD->Copertura[m][c][0] = count;
 
-
-
-
-
-
-//            pPD->Copertura[m][c][0] = cont;
-//            for (i = 0; i < cont; i++)
-//            {
-//                pPD->Copertura[m][c][i+1] = V[i];
-//                pPD->row_deg[m][V[i]]++;
-//            }
+            for (i = 0; i < count; i++)
+            {
+                pPD->Copertura[m][c][i+1] = V[i];
+                pPD->row_deg[m][V[i]]++;
+            }
         }
 
+    free(V);
 
     for (m = 1; m <= pPD->nm; m++)
         for (r = 1; r <= pPD->nr; r++)
             pPD->weight[m][r] = 1.0;
 
-
     for (c = 1; c <= pPD->nc; c++)
         pPD->b[c] = 1;
-
 
     pPD->bMax = -1;
     //for (c = 1; c <= pPD->nc; c++)
     //    if (pPD->b[c] > pPD->bMax) pPD->bMax = pPD->b[c];
-
-
-
-    // set here pPD->card[m])
 
 
     pPD->wtot = 0.0;
@@ -115,5 +111,9 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
             pPD->wtot += pPD->weight[m][r];
 
     return pPD;
+}
+
+double distance(int p1[2], int p2[2]){
+    return sqrt(pow((p2[0] - p1[0]), 2) + (pow((p2[1] - p1[1]), 2)));
 }
 
