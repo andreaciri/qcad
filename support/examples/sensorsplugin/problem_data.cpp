@@ -17,7 +17,19 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
     int rows[nr][2]; // Demand centers: array of [x,y] coordinates
     int columns[nc][2]; // Facility sites: array of [x,y] coordinates
 
-    m = 1;
+    pPD = (ProblemData *) calloc(1,sizeof(ProblemData));
+
+    pPD->nr = nr;
+    pPD->nc = nc;
+    pPD->nm = 1;
+
+    pPD->rows = (int **) calloc(pPD->nr+1,sizeof(int *));
+    pPD->columns = (int **) calloc(pPD->nc+1,sizeof(int *));
+    for (r = 1; r <= pPD->nr; r++)
+    {
+        pPD->rows[r] = (int *) calloc(2,sizeof(int));
+        pPD->columns[r] = (int *) calloc(2,sizeof(int));
+    }
 
     i = 0;
     for (int y = boundingBox[1][1]; y<= boundingBox[2][1]; y++){
@@ -26,15 +38,11 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
             rows[i][1] = y;
             columns[i][0] = x;
             columns[i][1] = y;
+            pPD->rows[i+1][0] = x;
+            pPD->columns[i+1][0] = y;
             i++;
         }
     }
-
-    pPD = (ProblemData *) calloc(1,sizeof(ProblemData));
-
-    pPD->nr = nr;
-    pPD->nc = nc;
-    pPD->nm = 1;
 
     pPD->card = (int *) calloc(pPD->nm+1,sizeof(int));
     pPD->card[1] = 4;
