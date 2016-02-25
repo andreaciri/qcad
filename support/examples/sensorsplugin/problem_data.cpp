@@ -11,8 +11,8 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
 
     int boxLenght = boundingBox[1][0] - boundingBox[0][0];
     int boxHeight = boundingBox[2][1] - boundingBox[1][1];
-    int nr = boxLenght * boxHeight;
-    int nc = boxLenght * boxHeight;
+    int nr = (boxLenght + 1) * (boxHeight + 1);
+    int nc = (boxLenght + 1) * (boxHeight + 1);
 
     int rows[nr][2]; // Demand centers: array of [x,y] coordinates
     int columns[nc][2]; // Facility sites: array of [x,y] coordinates
