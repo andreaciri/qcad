@@ -3,9 +3,8 @@ TARGET      = qcadsensors
 include(../../../shared.pri)
 
 TEMPLATE    = lib
-HEADERS     = RSensorsPlugin.h \
-    problem_data.h
-SOURCES     = RSensorsPlugin.cpp \
-    problem_data.cpp
+HEADERS     = *.h *.hpp
+
+SOURCES     = *.cpp
 DESTDIR     = ../../../plugins
 LIBS += -lqcadcore -lqcadgui -lqcadecmaapi
