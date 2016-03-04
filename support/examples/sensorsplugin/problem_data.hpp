@@ -1,3 +1,5 @@
+#ifndef __problem_data_h
+#define __problem_data_h
 #include "defs.h"
 
 struct _problemdata
@@ -24,3 +26,4 @@ typedef struct _problemdata ProblemData;
 ProblemData *LoadData (int boundingBox[4][2], int range);
 double distance (int p1[2], int p2[2]);
 
+#endif

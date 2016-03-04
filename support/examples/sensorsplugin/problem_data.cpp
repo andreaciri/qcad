@@ -47,7 +47,7 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
     }
 
     pPD->card = (int *) calloc(pPD->nm+1,sizeof(int));
-    pPD->card[1] = 4;
+    pPD->card[1] = 10;
 
     pPD->b = (int *) calloc(pPD->nc+1,sizeof(int));
     pPD->b[1] = 1;
