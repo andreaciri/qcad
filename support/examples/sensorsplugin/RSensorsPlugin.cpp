@@ -70,7 +70,6 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 
 
 void MySensorsClass::test(){
-    qDebug() << "MySensorClass::test - " << this->floorPoints;
     int BoundingCoo[4][2];
     for(int i = 0; i < this->boundingBox.length(); i++){
         BoundingCoo[i][0] = (int) this->boundingBox[i].getX();
@@ -78,6 +77,10 @@ void MySensorsClass::test(){
     }
 
     ProblemData& ins=(*LoadData(BoundingCoo, this->sensorRange));
+//    qDebug() << "MySensorClass::test facility x- " << ins.columns[80][0];
+//    qDebug() << "MySensorClass::test facility y- " << ins.columns[80][1];
+//    qDebug() << "MySensorClass::test covered x- " << ins.rows[ins.Copertura[1][80][2]][0];
+//    qDebug() << "MySensorClass::test covered y- " << ins.rows[ins.Copertura[1][80][2]][1];
 }
 
 /**

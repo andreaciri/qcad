@@ -39,7 +39,9 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
             columns[i][0] = x;
             columns[i][1] = y;
             pPD->rows[i+1][0] = x;
-            pPD->columns[i+1][0] = y;
+            pPD->rows[i+1][1] = y;
+            pPD->columns[i+1][0] = x;
+            pPD->columns[i+1][1] = y;
             i++;
         }
     }
