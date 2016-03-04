@@ -6,6 +6,9 @@
 #include "RPluginInfo.h"
 #include "RVersion.h"
 #include "RMainWindowQt.h"
+#include "solution.hpp"
+#include "greedy.hpp"
+#include "util.hpp"
 
 
 bool RSensorsPlugin::init() {
@@ -77,6 +80,8 @@ void MySensorsClass::test(){
     }
 
     ProblemData& ins=(*LoadData(BoundingCoo, this->sensorRange));
+    solution sol(ins);
+    greedy(sol, nullostream);
 //    qDebug() << "MySensorClass::test facility x- " << ins.columns[80][0];
 //    qDebug() << "MySensorClass::test facility y- " << ins.columns[80][1];
 //    qDebug() << "MySensorClass::test covered x- " << ins.rows[ins.Copertura[1][80][2]][0];
