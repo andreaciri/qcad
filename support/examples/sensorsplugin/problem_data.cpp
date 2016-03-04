@@ -127,3 +127,32 @@ double distance(int p1[2], int p2[2]){
     return sqrt(pow((p2[0] - p1[0]), 2) + (pow((p2[1] - p1[1]), 2)));
 }
 
+
+void DestroyProblemData (ProblemData **pPD)
+{
+  int m, c;
+
+  free((*pPD)->b);
+  free((*pPD)->card);
+
+  for (m = 1; m <= (*pPD)->nm; m++)
+    free((*pPD)->weight[m]);
+  free((*pPD)->weight);
+
+  if ((*pPD)->row_deg != NULL)
+  {
+    for (m = 1; m <= (*pPD)->nm; m++)
+      free((*pPD)->row_deg[m]);
+    free((*pPD)->row_deg);
+  }
+
+  for (m = 1; m <= (*pPD)->nm; m++)
+  {
+    for (c = 1; c <= (*pPD)->nc; c++)
+      free((*pPD)->Copertura[m][c]);
+    free((*pPD)->Copertura[m]);
+  }
+  free((*pPD)->Copertura);
+  free(*pPD);
+  *pPD = NULL;
+}

@@ -25,5 +25,6 @@ typedef struct _problemdata ProblemData;
 
 ProblemData *LoadData (int boundingBox[4][2], int range);
 double distance (int p1[2], int p2[2]);
+void DestroyProblemData (ProblemData **pPD);
 
 #endif
