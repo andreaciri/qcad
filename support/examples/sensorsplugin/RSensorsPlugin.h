@@ -35,20 +35,20 @@ public:
     }
 };
 
-class MySensorsClass : public QObject {
+class CoveragePlugin : public QObject {
 Q_OBJECT
 public:
-    MySensorsClass() : QObject() {}
+    CoveragePlugin() : QObject() {}
     int sensorRange;
     QList<RVector> floorPoints;
     QList<RVector> candidates;
     QList<RVector> boundingBox;
 public slots:
-    void test();
+    void start();
 };
 
 
-Q_DECLARE_METATYPE(MySensorsClass*)
+Q_DECLARE_METATYPE(CoveragePlugin*)
 
 class RSensorsPlugin : public QObject, public RPluginInterface
 {
@@ -65,7 +65,7 @@ public:
     virtual void initScriptExtensions(QScriptEngine& engine);
     virtual RPluginInfo getPluginInfo();
 
-    static QScriptValue createMySensorsClass(QScriptContext* context, QScriptEngine* engine);
-    static QScriptValue MySensorsClassToString(QScriptContext *context, QScriptEngine *engine);
-    static MySensorsClass* getSelfMySensorsClass(const QString& fName, QScriptContext* context);
+    static QScriptValue createCoveragePlugin(QScriptContext* context, QScriptEngine* engine);
+    static QScriptValue CoveragePluginToString(QScriptContext *context, QScriptEngine *engine);
+    static CoveragePlugin* getSelfCoveragePlugin(const QString& fName, QScriptContext* context);
 };

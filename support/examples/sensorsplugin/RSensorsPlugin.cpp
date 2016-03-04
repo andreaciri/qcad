@@ -44,21 +44,21 @@ void RSensorsPlugin::postInit(InitStatus status) {
 void RSensorsPlugin::initScriptExtensions(QScriptEngine& engine) {
     qDebug() << "RSensorsPlugin::initScriptExtensions";
 
-    QScriptValue* proto = new QScriptValue(engine.newVariant(qVariantFromValue((MySensorsClass*)0)));
+    QScriptValue* proto = new QScriptValue(engine.newVariant(qVariantFromValue((CoveragePlugin*)0)));
 
     // base class:
     QScriptValue dpt = engine.defaultPrototype(qMetaTypeId<QObject*>());
     proto->setPrototype(dpt);
 
-    REcmaHelper::registerFunction(&engine, proto, RSensorsPlugin::MySensorsClassToString, "toString");
+    REcmaHelper::registerFunction(&engine, proto, RSensorsPlugin::CoveragePluginToString, "toString");
 
-    engine.setDefaultPrototype(qMetaTypeId<MySensorsClass*>(), *proto);
+    engine.setDefaultPrototype(qMetaTypeId<CoveragePlugin*>(), *proto);
                         
-    //qScriptRegisterMetaType<MySensorsClass*>(&engine, toScriptValue, fromScriptValue, *proto);
+    //qScriptRegisterMetaType<CoveragePlugin*>(&engine, toScriptValue, fromScriptValue, *proto);
 
-    QScriptValue ctor = engine.newFunction(RSensorsPlugin::createMySensorsClass, *proto, 0);
+    QScriptValue ctor = engine.newFunction(RSensorsPlugin::createCoveragePlugin, *proto, 0);
 
-    engine.globalObject().setProperty("MySensorsClass", ctor, QScriptValue::SkipInEnumeration);
+    engine.globalObject().setProperty("CoveragePlugin", ctor, QScriptValue::SkipInEnumeration);
 }
 
 RPluginInfo RSensorsPlugin::getPluginInfo() {
@@ -72,7 +72,7 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 }
 
 
-void MySensorsClass::test(){
+void CoveragePlugin::start(){
     int BoundingCoo[4][2];
     for(int i = 0; i < this->boundingBox.length(); i++){
         BoundingCoo[i][0] = (int) this->boundingBox[i].getX();
@@ -82,27 +82,27 @@ void MySensorsClass::test(){
     ProblemData& ins=(*LoadData(BoundingCoo, this->sensorRange));
     solution sol(ins);
     greedy(sol, nullostream);
-//    qDebug() << "MySensorClass::test facility x- " << ins.columns[80][0];
-//    qDebug() << "MySensorClass::test facility y- " << ins.columns[80][1];
-//    qDebug() << "MySensorClass::test covered x- " << ins.rows[ins.Copertura[1][80][2]][0];
-//    qDebug() << "MySensorClass::test covered y- " << ins.rows[ins.Copertura[1][80][2]][1];
+    qDebug() << "CoveragePlugin::test facility x- " << ins.columns[80][0];
+//    qDebug() << "CoveragePlugin::test facility y- " << ins.columns[80][1];
+//    qDebug() << "CoveragePlugin::test covered x- " << ins.rows[ins.Copertura[1][80][2]][0];
+//    qDebug() << "CoveragePlugin::test covered y- " << ins.rows[ins.Copertura[1][80][2]][1];
 }
 
 /**
- * Constructor for MySensorsClass:
+ * Constructor for CoveragePlugin:
  */
-QScriptValue RSensorsPlugin::createMySensorsClass(QScriptContext* context, QScriptEngine* engine) {
+QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScriptEngine* engine) {
     if (context->thisObject().strictlyEquals(engine->globalObject())) {
-        return REcmaHelper::throwError(QString::fromLatin1("MySensorsClass(): Did you forget to construct with 'new'?"), context);
+        return REcmaHelper::throwError(QString::fromLatin1("CoveragePlugin(): Did you forget to construct with 'new'?"), context);
     }
     
     // constructor without arguments:
     if(context->argumentCount() == 0) {
-        MySensorsClass* cppResult = new MySensorsClass();
+        CoveragePlugin* cppResult = new CoveragePlugin();
         return engine->newQObject(context->thisObject(), cppResult);
     }
     else if(context->argumentCount()==4 && context->argument(3).isArray()) {
-        MySensorsClass* cppResult = new MySensorsClass();
+        CoveragePlugin* cppResult = new CoveragePlugin();
         QList<RVector> fP;
         QList<RVector> cand;
         QList<RVector> box;
@@ -119,25 +119,25 @@ QScriptValue RSensorsPlugin::createMySensorsClass(QScriptContext* context, QScri
         return engine->newQObject(context->thisObject(), cppResult);
     }
     else {
-        return REcmaHelper::throwError(QString::fromLatin1("MySensorsClass(): no matching constructor found."), context);
+        return REcmaHelper::throwError(QString::fromLatin1("CoveragePlugin(): no matching constructor found."), context);
     }
 }
 
 /**
- * MySensorsClass::toString
+ * CoveragePlugin::toString
  */
-QScriptValue RSensorsPlugin::MySensorsClassToString(QScriptContext *context, QScriptEngine *engine) {
+QScriptValue RSensorsPlugin::CoveragePluginToString(QScriptContext *context, QScriptEngine *engine) {
     Q_UNUSED(engine)
 
-    MySensorsClass* self = getSelfMySensorsClass("toString", context);
-    return QScriptValue(QString("MySensorsClass(0x%1)").arg((unsigned long int)self, 0, 16));
+    CoveragePlugin* self = getSelfCoveragePlugin("toString", context);
+    return QScriptValue(QString("CoveragePlugin(0x%1)").arg((unsigned long int)self, 0, 16));
 }
 
-MySensorsClass* RSensorsPlugin::getSelfMySensorsClass(const QString& fName, QScriptContext* context) {
-    MySensorsClass* self = REcmaHelper::scriptValueTo<MySensorsClass >(context->thisObject());
+CoveragePlugin* RSensorsPlugin::getSelfCoveragePlugin(const QString& fName, QScriptContext* context) {
+    CoveragePlugin* self = REcmaHelper::scriptValueTo<CoveragePlugin >(context->thisObject());
     if (self == NULL){
         if (fName!="toString") {
-            REcmaHelper::throwError(QString("MySensorsClass.%1(): This object is not a MySensorsClass").arg(fName), context);
+            REcmaHelper::throwError(QString("CoveragePlugin.%1(): This object is not a CoveragePlugin").arg(fName), context);
         }
         return NULL;
     }

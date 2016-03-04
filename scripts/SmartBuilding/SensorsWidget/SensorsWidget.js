@@ -86,12 +86,12 @@ SensorsWidget.prototype.beginEvent = function() {
         }
     }
 
-    var perimeter = this.getDocument().getBoundingBox().getCorners2d();
+    var boundingBox = this.getDocument().getBoundingBox().getCorners2d();
     appWin.handleUserMessage("Floorplan points: " + floorPoints);
     appWin.handleUserMessage("Candidate points: " + candidates);
-    appWin.handleUserMessage("Bounding box corners: " + perimeter);
+    appWin.handleUserMessage("Bounding box corners: " + boundingBox);
 
-    var coveragePlugin = new CoveragePlugin(sensorRange, floorPoints, candidates, perimeter);
+    var coveragePlugin = new CoveragePlugin(sensorRange, floorPoints, candidates, boundingBox);
     coveragePlugin.start();
 
     dialog.destroy();
