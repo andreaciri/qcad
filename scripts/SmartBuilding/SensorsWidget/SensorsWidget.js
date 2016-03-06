@@ -64,26 +64,26 @@ SensorsWidget.prototype.beginEvent = function() {
 
     var allEntities = this.getDocument().queryAllEntities(false, false, RS.EntityAll);
     var ent;
-    var isFloorplan;
-    var isCandidate;
+    var typeKey;
     var floorPoints = [];
     var candidates = [];
 
     for(i=0; i<allEntities.length; i++){
 
         ent = this.getDocument().queryEntity(allEntities[i]);
-        isFloorplan = ent.getCustomProperty("QCAD", "isFloorplan", null);
-        isCandidate = ent.getCustomProperty("QCAD", "isCandidate", null);
+        typeKey = ent.getCustomPropertyKeys("QCAD");
 
-        if(isFloorplan){
+        if(typeKey[0] == "isFloorplan"){
             floorPoints.push(ent.getStartPoint());
         }
-        else if(isCandidate) {
+        else if(typeKey[0] == "isCandidate") {
             candidates.push(ent.getPosition());
         }
             else{
                 appWin.handleUserMessage("this is not a smartbuilding entity: " + allEntities[i]);
+                appWin.handleUserMessage("typeKey content: " + typeKey[0]);
         }
+
     }
 
     var boundingBox = this.getDocument().getBoundingBox().getCorners2d();

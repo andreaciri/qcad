@@ -161,7 +161,7 @@ Floorplan.prototype.getOperation = function(preview) {
         return undefined;
     }
     var e = this.createLineEntity(this.getDocument(), this.point1, this.point2);
-    e.setCustomProperty("QCAD", "isFloorplan", 1);
+    e.setCustomProperty("QCAD", "isFloorplan", "1");
     return new RAddObjectOperation(e, this.getToolTitle());
 };
 
