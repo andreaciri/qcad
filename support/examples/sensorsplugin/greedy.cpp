@@ -40,7 +40,7 @@ void greedy(solution& sol, ostream& os){
 		}
 
 		//if the best move does not improve the objective function, exit.
-		if(le(bestMove.dCost,0.0)) break;
+        if(leq(bestMove.dCost,0.0)) break;
 		
 		//execute the best move
 		makeAddMove(sol,bestMove.add);		
