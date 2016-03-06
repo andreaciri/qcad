@@ -9,6 +9,7 @@
 #include "solution.hpp"
 #include "greedy.hpp"
 #include "util.hpp"
+#include "vnsheuristic.hpp"
 
 
 bool RSensorsPlugin::init() {
@@ -79,9 +80,8 @@ void CoveragePlugin::start(){
         BoundingCoo[i][1] = (int) this->boundingBox[i].getY();
     }
 
-    ProblemData& ins=(*LoadData(BoundingCoo, this->sensorRange));
-    solution sol(ins);
-    greedy(sol, nullostream);
+    ProblemData& problemData=(*LoadData(BoundingCoo, this->sensorRange));
+    vnsheuristic(problemData);
 
 //    for(const auto& antenna: sol.sparseMC){
 //        qDebug() << "CoveragePlugin::test facility x- " << ins.columns[antenna.column][0];
