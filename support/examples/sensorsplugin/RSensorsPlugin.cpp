@@ -82,10 +82,12 @@ void CoveragePlugin::start(){
     ProblemData& ins=(*LoadData(BoundingCoo, this->sensorRange));
     solution sol(ins);
     greedy(sol, nullostream);
-    qDebug() << "CoveragePlugin::test facility x- " << ins.columns[80][0];
-//    qDebug() << "CoveragePlugin::test facility y- " << ins.columns[80][1];
-//    qDebug() << "CoveragePlugin::test covered x- " << ins.rows[ins.Copertura[1][80][2]][0];
-//    qDebug() << "CoveragePlugin::test covered y- " << ins.rows[ins.Copertura[1][80][2]][1];
+
+//    for(const auto& antenna: sol.sparseMC){
+//        qDebug() << "CoveragePlugin::test facility x- " << ins.columns[antenna.column][0];
+//        qDebug() << "CoveragePlugin::test facility y- " << ins.columns[antenna.column][1];
+//    }
+
 }
 
 /**
