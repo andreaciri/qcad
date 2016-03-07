@@ -1,4 +1,5 @@
 #include <QMenuBar>
+#include <math.h>
 
 #include "REcmaHelper.h"
 #include "RSensorsPlugin.h"
@@ -74,26 +75,38 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 
 
 void CoveragePlugin::start(){
-    if(this->wantCandidates){
-        qDebug("Aimed Coverage: %f:", this->aimedCoverage);
-    }
     int BoundingCoo[4][2];
-    int i;
+    int i, estimateMin;
+    float currentCoverage;
+
     for(i = 0; i < this->boundingBox.length(); i++){
         BoundingCoo[i][0] = (int) this->boundingBox[i].getX();
         BoundingCoo[i][1] = (int) this->boundingBox[i].getY();
     }
 
-    ProblemData& pData=(*LoadData(BoundingCoo, this->sensorRange));
-    solution currentSol = vnsheuristic(pData);
+    ProblemData* pData = LoadData(BoundingCoo, this->sensorRange);
+
+    estimateMin = (int) ceil((pData->nr * this->aimedCoverage) / ((this->sensorRange) * (this->sensorRange) * 3.14));
+    pData->card[1] = estimateMin;
+
+    solution currentSol = vnsheuristic(*pData);
+    currentCoverage = (currentSol.sparseMR.size() / pData->nr);
+
+    for(i=estimateMin; currentCoverage < aimedCoverage; i++){
+        pData->card[1]++;
+        currentSol = vnsheuristic(*pData);
+        currentCoverage = ((float) currentSol.sparseMR.size() / (float) pData->nr);
+    }
 
     i=0;
     qDebug("VNS Heuristic:");
     for(const auto& antenna: currentSol.sparseMC){
         i++;
-        qDebug("Antenna %d: (x= %d, y= %d)", i, pData.columns[antenna.column][0], pData.columns[antenna.column][1]);
+        qDebug("Antenna %d: (x= %d, y= %d)", i, pData->columns[antenna.column][0], pData->columns[antenna.column][1]);
     }
+    qDebug("Current coverage: %f", currentCoverage);
 
+    DestroyProblemData(&pData);
 }
 
 /**
@@ -129,7 +142,7 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         cppResult->boundingBox = box;
         wantCandidates = context->argument(4).toBool();
         cppResult->wantCandidates = wantCandidates;
-        aimedCoverage = context->argument(5).toNumber();
+        aimedCoverage = context->argument(5).toNumber() / 100.00;
         cppResult->aimedCoverage = aimedCoverage;
         return engine->newQObject(context->thisObject(), cppResult);
     }
