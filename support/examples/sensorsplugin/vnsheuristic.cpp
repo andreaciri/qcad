@@ -27,10 +27,9 @@ solution shaking(solution& sol, int k, int mIn);
 void VNS (solution& sol, ProblemData& ins, int kMin, int kMax, int kDelta, int MaxRestart,
           int MaxIter, bool FirstBest, int& bestIter, int& bestRestart, int& kBest,
           int& totRestart, int& totalIter, double timeout);
-void vnsheuristic(ProblemData& ins);
 
 
-void vnsheuristic(ProblemData& ins)
+solution vnsheuristic(ProblemData& ins)
 {
     HeuristicParam HP;
     long start, end;
@@ -54,34 +53,27 @@ void vnsheuristic(ProblemData& ins)
             if (HP.kMax > ins.card[m]) HP.kMax = ins.card[m];
     }
 
-    printf("Greedy: ");
+    qDebug("Greedy: ");
     start = clock();
     greedy(sol,nullostream);
-
-    m=0;
-    qDebug("Greedy algorithm:");
-    for(const auto& antenna: sol.sparseMC){
-        m++;
-        qDebug("Antenna %d: (x= %d, y= %d)", m, ins.columns[antenna.column][0], ins.columns[antenna.column][1]);
-    }
 
     end = clock();
     tempo = (double) (end-start)/ (double)CLOCKS_PER_SEC;
     MaxTime -= tempo;
     //assert(isFeasible(ins,sol.sparseMC,sol.cost,true));
-    printf("Obj= %8ld Iter= %8d Uncov= %8d Time= %8.3lf\n",(long) sol.cost,sol.sparseMC.size(),sol.uncoveredMR.size(),tempo);
+    qDebug("Obj= %8ld Iter= %8d Uncov= %8d Time= %8.3lf\n",(long) sol.cost,sol.sparseMC.size(),sol.uncoveredMR.size(),tempo);
 
-    printf("LS    : ");
+    qDebug("LS    : ");
     start = clock();
     localsearch(sol,totIter,HP.FirstBest,MaxTime);
     end = clock();
     tempo = (double) (end-start)/ (double)CLOCKS_PER_SEC;
     MaxTime -= tempo;
     //assert(isFeasible(ins,sol.sparseMC,sol.cost,true));
-    printf("Obj= %8ld Iter= %8d Uncov= %8d Time= %8.3lf\n",(long) sol.cost,totIter,sol.uncoveredMR.size(),tempo);
+    qDebug("Obj= %8ld Iter= %8d Uncov= %8d Time= %8.3lf\n",(long) sol.cost,totIter,sol.uncoveredMR.size(),tempo);
     //sol.print();
 
-    printf("VNS   : ");
+    qDebug("VNS   : ");
     bestIter = bestRestart = 0;
     start = clock();
     VNS(sol,ins,HP.kMin,HP.kMax,HP.kDelta,HP.MaxVNSRestarts,HP.MaxIter,HP.FirstBest,bestIter,bestRestart,kBest,totRestart,totIter,MaxTime);
@@ -89,15 +81,10 @@ void vnsheuristic(ProblemData& ins)
     tempo = (double) (end-start)/ (double)CLOCKS_PER_SEC;
     //  assert(isFeasible(ins,sol.sparseMC,sol.cost,true));
 
-    printf("Obj= %8ld Iter= %8d Restart= %8d Uncov= %8d Time= %8.3lf iBest= %8d rBest= %8d kBest= %8d\n",
+    qDebug("Obj= %8ld Iter= %8d Restart= %8d Uncov= %8d Time= %8.3lf iBest= %8d rBest= %8d kBest= %8d\n",
            (long) sol.cost,totIter,totRestart,sol.uncoveredMR.size(),tempo,bestIter,bestRestart,kBest);
-    //sol.print();
-    m=0;
-    qDebug("VNS Heuristic:");
-    for(const auto& antenna: sol.sparseMC){
-        m++;
-        qDebug("Antenna %d: (x= %d, y= %d)", m, ins.columns[antenna.column][0], ins.columns[antenna.column][1]);
-    }
+
+    return sol;
 }
 
 
@@ -182,20 +169,12 @@ void VNS (solution& sol, ProblemData& ins, int kMin, int kMax, int kDelta, int M
     start = clock();
     while ( (totRestart < MaxRestart) && (iter < MaxIter) && ((double) (clock()-start)/ (double)CLOCKS_PER_SEC <= timeout) )
     {
-        //printf("i: %8d, %8ld\t",iter,(long)sol.cost);
-        //sol.print();
 
         shaking(sol,k,mIn);
-
-        //printf("k: %8d, %8ld\t",k,(long)sol.cost);
-        //sol.print();
 
         localsearch(sol,iterLS,FirstBest,timeout - ((double) (clock()-start)/ (double)CLOCKS_PER_SEC));
         iter += iterLS;
         totRestart++;
-
-        //printf("i: %6d, k: %4d, cost: %8ld\n",iter,k,(long)sol.cost);
-        //sol.print();
 
         mIn++;
         if (mIn > ins.nm) mIn -= ins.nm;
@@ -230,7 +209,7 @@ void ConfigureParameters (HeuristicParam *pHP, int nc)
     //pHP->LST = NONE;
     pHP->LST = LS_TYPE_VNS;
     pHP->MaxVNSRestarts = 50;
-    pHP->MaxIter = 100;
+    pHP->MaxIter = 50;
     pHP->kMin = 1;
     pHP->kMax = nc; // Default is nc, which is not known yet
     pHP->kDelta = 1;

@@ -40,6 +40,7 @@ Q_OBJECT
 public:
     CoveragePlugin() : QObject() {}
     int sensorRange;
+    float aimedCoverage;
     QList<RVector> floorPoints;
     QList<RVector> candidates;
     QList<RVector> boundingBox;

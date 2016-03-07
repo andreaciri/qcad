@@ -75,18 +75,21 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 
 void CoveragePlugin::start(){
     int BoundingCoo[4][2];
-    for(int i = 0; i < this->boundingBox.length(); i++){
+    int i;
+    for(i = 0; i < this->boundingBox.length(); i++){
         BoundingCoo[i][0] = (int) this->boundingBox[i].getX();
         BoundingCoo[i][1] = (int) this->boundingBox[i].getY();
     }
 
-    ProblemData& problemData=(*LoadData(BoundingCoo, this->sensorRange));
-    vnsheuristic(problemData);
+    ProblemData& pData=(*LoadData(BoundingCoo, this->sensorRange));
+    solution currentSol = vnsheuristic(pData);
 
-//    for(const auto& antenna: sol.sparseMC){
-//        qDebug() << "CoveragePlugin::test facility x- " << ins.columns[antenna.column][0];
-//        qDebug() << "CoveragePlugin::test facility y- " << ins.columns[antenna.column][1];
-//    }
+    i=0;
+    qDebug("VNS Heuristic:");
+    for(const auto& antenna: currentSol.sparseMC){
+        i++;
+        qDebug("Antenna %d: (x= %d, y= %d)", i, pData.columns[antenna.column][0], pData.columns[antenna.column][1]);
+    }
 
 }
 
