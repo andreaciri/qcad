@@ -42,7 +42,7 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="Candidates">
      <property name="text">
       <string>Only Candidate sites</string>
      </property>
@@ -59,7 +59,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QSpinBox" name="spinBox">
+    <widget class="QSpinBox" name="Modes">
      <property name="minimum">
       <number>1</number>
      </property>
@@ -76,7 +76,7 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QDoubleSpinBox" name="doubleSpinBox">
+    <widget class="QDoubleSpinBox" name="AimedCoverage">
      <property name="suffix">
       <string>%</string>
      </property>
