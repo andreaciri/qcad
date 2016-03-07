@@ -57,6 +57,8 @@ SensorsWidget.prototype.beginEvent = function() {
     WidgetFactory.saveState(dialog);
     var widgets = getWidgets(dialog);
     var sensorRange = widgets["SensorRange"].text;
+    var aimedCoverage = widgets["AimedCoverage"].value;
+    var wantCandidates = widgets["Candidates"].checked;
 
     // Print the user input to the QCAD console:
     var appWin = EAction.getMainWindow();
@@ -90,8 +92,10 @@ SensorsWidget.prototype.beginEvent = function() {
     appWin.handleUserMessage("Floorplan points: " + floorPoints);
     appWin.handleUserMessage("Candidate points: " + candidates);
     appWin.handleUserMessage("Bounding box corners: " + boundingBox);
+    appWin.handleUserMessage("Aimed percentage of coverage: " + aimedCoverage +"%");
+    appWin.handleUserMessage("Using candidate points: " + (wantCandidates? "Yes" : "No"));
 
-    var coveragePlugin = new CoveragePlugin(sensorRange, floorPoints, candidates, boundingBox);
+    var coveragePlugin = new CoveragePlugin(sensorRange, floorPoints, candidates, boundingBox, wantCandidates, aimedCoverage);
     coveragePlugin.start();
 
     dialog.destroy();
