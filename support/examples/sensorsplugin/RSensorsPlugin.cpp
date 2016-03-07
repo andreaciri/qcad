@@ -74,6 +74,9 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 
 
 void CoveragePlugin::start(){
+    if(this->wantCandidates){
+        qDebug("Aimed Coverage: %f:", this->aimedCoverage);
+    }
     int BoundingCoo[4][2];
     int i;
     for(i = 0; i < this->boundingBox.length(); i++){
@@ -106,12 +109,15 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         CoveragePlugin* cppResult = new CoveragePlugin();
         return engine->newQObject(context->thisObject(), cppResult);
     }
-    else if(context->argumentCount()==4 && context->argument(3).isArray()) {
+    else if(context->argumentCount()==6 && context->argument(3).isArray()) {
         CoveragePlugin* cppResult = new CoveragePlugin();
         QList<RVector> fP;
         QList<RVector> cand;
         QList<RVector> box;
         int range;
+        float aimedCoverage;
+        bool wantCandidates;
+
         // convert ECMAScript array to QList<RVector>:
         range = context->argument(0).toInt32();
         cppResult->sensorRange = range;
@@ -121,6 +127,10 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         cppResult->candidates = cand;
         REcmaHelper::fromScriptValue(engine, context->argument(3), box);
         cppResult->boundingBox = box;
+        wantCandidates = context->argument(4).toBool();
+        cppResult->wantCandidates = wantCandidates;
+        aimedCoverage = context->argument(5).toNumber();
+        cppResult->aimedCoverage = aimedCoverage;
         return engine->newQObject(context->thisObject(), cppResult);
     }
     else {
