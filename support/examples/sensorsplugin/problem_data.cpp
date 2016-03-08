@@ -84,7 +84,7 @@ ProblemData *LoadData (int boundingBox[4][2], int range)
             count = 0;
             for (r = 1; r <= pPD->nr; r++){
 
-                if (distance(columns[c-1], rows[r-1]) < range){
+                if (distance(columns[c-1], rows[r-1]) <= range){
                     // Position r is covered by forniture c
                     // cont = number of positions covered by c in mode m
                     V[count] = r;
