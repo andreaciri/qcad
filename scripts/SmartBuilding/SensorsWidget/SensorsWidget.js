@@ -22,6 +22,7 @@
 include("scripts/WidgetFactory.js");
 //! [include]
 include("../SmartBuilding.js");
+include("../../Draw/Circle/Circle.js");
 
 function SensorsWidget(guiAction) {
     SmartBuilding.call(this, guiAction);
@@ -56,7 +57,7 @@ SensorsWidget.prototype.beginEvent = function() {
     // User hit OK. Store the new user input:
     WidgetFactory.saveState(dialog);
     var widgets = getWidgets(dialog);
-    var sensorRange = widgets["SensorRange"].text;
+    var sensorRange = widgets["SensorRange"].value;
     var aimedCoverage = widgets["AimedCoverage"].value;
     var wantCandidates = widgets["Candidates"].checked;
 
@@ -69,6 +70,7 @@ SensorsWidget.prototype.beginEvent = function() {
     var typeKey;
     var floorPoints = [];
     var candidates = [];
+    var i, x, y;
 
     for(i=0; i<allEntities.length; i++){
 
@@ -100,8 +102,20 @@ SensorsWidget.prototype.beginEvent = function() {
     var resultObj = eval('(' + resultJSON + ')');
     appWin.handleUserMessage("resultJSON: " + resultJSON);
     appWin.handleUserMessage("COVERAGE RATE: " + (resultObj.coverage*100)+"%");
-    //appWin.handleUserMessage("PROVA COO: " + resultObj.coordinates);
     appWin.handleUserMessage("FIRST COO: " + resultObj.coordinates[0].x);
+
+    var resultView = new RAddObjectsOperation();
+    for(i=0; i<resultObj.coordinates.length; i++){
+        x = resultObj.coordinates[i].x;
+        y = resultObj.coordinates[i].y;
+        var circle = new RCircleEntity(
+        this.getDocument(),
+        new RCircleData(new RVector(x, y, 0), sensorRange)
+        );
+        resultView.addObject(circle);
+    }
+    
+    this.getDocumentInterface().applyOperation(resultView);
 
     dialog.destroy();
     EAction.activateMainWindow();
