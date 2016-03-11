@@ -96,7 +96,12 @@ SensorsWidget.prototype.beginEvent = function() {
     appWin.handleUserMessage("Using candidate points: " + (wantCandidates? "Yes" : "No"));
 
     var coveragePlugin = new CoveragePlugin(sensorRange, floorPoints, candidates, boundingBox, wantCandidates, aimedCoverage);
-    coveragePlugin.start();
+    var resultJSON = coveragePlugin.start();
+    var resultObj = eval('(' + resultJSON + ')');
+    appWin.handleUserMessage("resultJSON: " + resultJSON);
+    appWin.handleUserMessage("COVERAGE RATE: " + (resultObj.coverage*100)+"%");
+    //appWin.handleUserMessage("PROVA COO: " + resultObj.coordinates);
+    appWin.handleUserMessage("FIRST COO: " + resultObj.coordinates[0].x);
 
     dialog.destroy();
     EAction.activateMainWindow();

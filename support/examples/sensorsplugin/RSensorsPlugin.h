@@ -9,6 +9,7 @@
 #include "RMainWindow.h"
 #include "RPluginInterface.h"
 #include "problem_data.hpp"
+#include "types.hpp"
 
 class MyAction : public RActionAdapter {
 public:
@@ -46,9 +47,10 @@ public:
     QList<RVector> candidates;
     QList<RVector> boundingBox;
 public slots:
-    void start();
+    QString start();
 };
 
+QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate);
 
 Q_DECLARE_METATYPE(CoveragePlugin*)
 

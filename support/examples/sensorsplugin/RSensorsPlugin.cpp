@@ -74,7 +74,7 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 }
 
 
-void CoveragePlugin::start(){
+QString CoveragePlugin::start(){
     int BoundingCoo[4][2];
     int i, estimateMin;
     float currentCoverage;
@@ -98,15 +98,33 @@ void CoveragePlugin::start(){
         currentCoverage = ((float) currentSol.sparseMR.size() / (float) pData->nr);
     }
 
-    i=0;
-    qDebug("VNS Heuristic:");
-    for(const auto& antenna: currentSol.sparseMC){
-        i++;
-        qDebug("Antenna %d: (x= %d, y= %d)", i, pData->columns[antenna.column][0], pData->columns[antenna.column][1]);
-    }
-    qDebug("Current coverage: %f", currentCoverage);
-
+    QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
     DestroyProblemData(&pData);
+    return resultJSON;
+}
+
+QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate){
+    int i, x, y;
+    i = 0;
+    QString cooString = "[";
+    qDebug("VNS Heuristic:");
+    for(const auto& antenna: sparseMC){
+        i++;
+        x = pData->columns[antenna.column][0];
+        y = pData->columns[antenna.column][1];
+        qDebug("Antenna %d: (x= %d, y= %d)", i, x, y);
+        if(i>1){
+            QTextStream(&cooString) << ", ";
+        }
+        QTextStream(&cooString) << "{x:" << x << ", y:" << y << "}";
+    }
+    QTextStream(&cooString) << "]";
+    qDebug("Current coverage: %f", coverageRate);
+
+
+    QString resultJSON;
+    QTextStream(&resultJSON) << "{fornitureQuantity:" << i << ", coverage:" << coverageRate << ", coordinates:" << cooString << "}";
+    return resultJSON;
 }
 
 /**
@@ -131,7 +149,7 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         float aimedCoverage;
         bool wantCandidates;
 
-        // convert ECMAScript array to QList<RVector>:
+        // convert ECMAScript parameters to C++ variables:
         range = context->argument(0).toInt32();
         cppResult->sensorRange = range;
         REcmaHelper::fromScriptValue(engine, context->argument(1), fP);
