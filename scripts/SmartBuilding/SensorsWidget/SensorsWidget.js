@@ -99,6 +99,12 @@ SensorsWidget.prototype.beginEvent = function() {
 
     var coveragePlugin = new CoveragePlugin(sensorRange, floorPoints, candidates, boundingBox, wantCandidates, aimedCoverage);
     var resultJSON = coveragePlugin.start();
+
+    if(errorCheck(resultJSON)){
+        // RESULT HAS ERROR
+        appWin.handleUserMessage(resultJSON);
+        return;
+    }
     var resultObj = eval('(' + resultJSON + ')');
     appWin.handleUserMessage("resultJSON: " + resultJSON);
     appWin.handleUserMessage("COVERAGE RATE: " + (resultObj.coverage*100)+"%");
@@ -112,6 +118,8 @@ SensorsWidget.prototype.beginEvent = function() {
         this.getDocument(),
         new RCircleData(new RVector(x, y, 0), sensorRange)
         );
+        // TODO non cambia il colore
+        circle.setColor(new RColor("blue"));
         resultView.addObject(circle);
     }
     
@@ -132,3 +140,12 @@ SensorsWidget.init = function(basePath) {
     action.setWidgetNames(["SmartBuildingMenu"]);
 };
 //! [main]
+
+function errorCheck(string){
+    if(string.indexOf("ERROR") < 0){
+        return false;
+    }
+    else{
+        return true;
+    }
+}

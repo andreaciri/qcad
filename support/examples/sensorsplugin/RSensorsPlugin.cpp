@@ -84,16 +84,22 @@ QString CoveragePlugin::start(){
         BoundingCoo[i][1] = (int) this->boundingBox[i].getY();
     }
 
-    ProblemData* pData = LoadData(BoundingCoo, this->sensorRange);
+    ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->wantCandidates, this->candidates);
 
     estimateMin = (int) ceil((pData->nr * this->aimedCoverage) / ((this->sensorRange) * (this->sensorRange) * 3.14));
+    if(this->wantCandidates && estimateMin > this->candidates.length()){
+        return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
+    }
     pData->card[1] = estimateMin;
 
     solution currentSol = vnsheuristic(*pData);
     currentCoverage = (currentSol.sparseMR.size() / pData->nr);
 
-    for(i=estimateMin; currentCoverage < aimedCoverage; i++){
-        pData->card[1]++;
+    for(i = estimateMin + 1; currentCoverage < aimedCoverage; i++){
+        if(this->wantCandidates && i > this->candidates.length()){
+            return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
+        }
+        pData->card[1] = i;
         currentSol = vnsheuristic(*pData);
         currentCoverage = ((float) currentSol.sparseMR.size() / (float) pData->nr);
     }
