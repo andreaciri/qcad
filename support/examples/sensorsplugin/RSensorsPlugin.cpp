@@ -86,7 +86,7 @@ QString CoveragePlugin::start(){
 
     ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->wantCandidates, this->candidates);
 
-    estimateMin = (int) ceil((pData->nr * this->aimedCoverage) / ((this->sensorRange) * (this->sensorRange) * 3.14));
+    estimateMin = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange) * (this->sensorRange) * 3.14));
     if(this->wantCandidates && estimateMin > this->candidates.length()){
         return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
     }
