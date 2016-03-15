@@ -75,21 +75,21 @@ SensorsWidget.prototype.beginEvent = function() {
     for(i=0; i<allEntities.length; i++){
 
         ent = this.getDocument().queryEntity(allEntities[i]);
-        typeKey = ent.getCustomPropertyKeys("QCAD");
+        //typeKey = ent.getCustomPropertyKeys("QCAD");
 
-        if(typeKey[0] == "isFloorplan"){
+        if(ent.getCustomProperty("QCAD", "isFloorplan", null)){
             floorPoints.push(ent.getStartPoint());
+            appWin.handleUserMessage("ROOM ID: " + ent.getCustomProperty("QCAD", "roomId", null));
         }
-        else if(typeKey[0] == "isCandidate") {
+        else if(ent.getCustomProperty("QCAD", "isCandidate", null)) {
             candidates.push(ent.getPosition());
         }
             else{
                 appWin.handleUserMessage("this is not a smartbuilding entity: " + allEntities[i]);
-                appWin.handleUserMessage("typeKey content: " + typeKey[0]);
-        }
+            }
 
     }
-
+    return;
     var boundingBox = this.getDocument().getBoundingBox().getCorners2d();
     appWin.handleUserMessage("Floorplan points: " + floorPoints);
     appWin.handleUserMessage("Candidate points: " + candidates);

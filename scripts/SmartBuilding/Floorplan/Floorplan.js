@@ -1,7 +1,7 @@
 // Floorplan.js
 // Include base class definition:
 include("../SmartBuilding.js");
- 
+var roomId = 1; 
 // Constructor calls base class constructor:
 function Floorplan(guiAction) {
     SmartBuilding.call(this, guiAction);
@@ -9,6 +9,8 @@ function Floorplan(guiAction) {
     this.pointList = [];
     // index of point that was drawn last, used for tool undo / redo:
     this.pointListIndex = -1;
+    // index of first point of the current room
+    this.roomStartingIndex = -1;
     // list of entities drawn:
     this.entityIdList = [];
 
@@ -82,7 +84,6 @@ Floorplan.prototype.showUiOptions = function(resume, restoreFromSettings) {
 // If there are no setted points, the escape close the tool
 // else, delete current line
 Floorplan.prototype.escapeEvent = function() {
-    
     switch (this.state) {
     case Floorplan.State.SettingFirstPoint:
         EAction.prototype.escapeEvent.call(this);
@@ -97,7 +98,6 @@ Floorplan.prototype.escapeEvent = function() {
 
 Floorplan.prototype.keyPressEvent = function(event) {
     var di = this.getDocumentInterface();
-
     if ((event.key() === Qt.Key_Enter.valueOf()) || (event.key() === Qt.Key_Return.valueOf())) {
         if (this.state === Floorplan.State.SettingFirstPoint) {
             this.point1 = di.getLastPosition();
@@ -113,6 +113,9 @@ Floorplan.prototype.keyPressEvent = function(event) {
     }
 };
 
+// Viene chiamata ad ogni movimento nel piano
+// Con preview, non crea l'entità, ma la disegna 
+// !preview crea l'entità
 Floorplan.prototype.pickCoordinate = function(event, preview) {
     var di = this.getDocumentInterface();
 
@@ -122,6 +125,7 @@ Floorplan.prototype.pickCoordinate = function(event, preview) {
             this.point1 = event.getModelPosition();
             this.pointList.splice(0, 0, this.point1);
             this.pointListIndex = 0;
+            this.roomStartingIndex = 0;
             di.setRelativeZero(this.point1);
             this.setState(Floorplan.State.SettingNextPoint);
         }
@@ -130,6 +134,7 @@ Floorplan.prototype.pickCoordinate = function(event, preview) {
     case Floorplan.State.SettingNextPoint:
         this.point2 = event.getModelPosition();
         if (preview) {
+            // Updates the preview based on the operation returned by getOperation
             this.updatePreview();
         }
         else {
@@ -138,12 +143,18 @@ Floorplan.prototype.pickCoordinate = function(event, preview) {
                 
                 this.pointListIndex++;
 
-                var doc = this.getDocument();
-                var trans = di.applyOperation(op);
-                var id = this.getLineEntityId(trans);
-
                 this.pointList.splice(this.pointListIndex, 0, this.point2);
-                this.entityIdList.splice(this.pointListIndex-1, 0, id);
+
+                if(this.point2.x == this.pointList[this.roomStartingIndex].x
+                    && this.point2.y == this.pointList[this.roomStartingIndex].y){
+                    // Room has just been closed
+                    var doc = this.getDocument();
+                    var trans = di.applyOperation(op);
+                    //var id = this.getLineEntityId(trans);
+                    this.roomStartingIndex = this.pointListIndex;
+                    roomId++;
+                }
+                // this.entityIdList.splice(this.pointListIndex-1, 0, id);
                 di.setRelativeZero(this.point2);
                 this.point1 = this.point2;
             }
@@ -160,8 +171,26 @@ Floorplan.prototype.getOperation = function(preview) {
     if (!isVector(this.point1) || !isVector(this.point2)) {
         return undefined;
     }
+    var roomOperation = new RAddObjectsOperation(false);
+    for(var i = this.roomStartingIndex; i < this.pointList.length-1; i++){
+        var e = this.createLineEntity(this.getDocument(), this.pointList[i], this.pointList[i+1]);
+        e.setCustomProperty("QCAD", "isFloorplan", 1);
+        e.setCustomProperty("QCAD", "roomId", roomId);
+        roomOperation.addObject(e);
+    }
     var e = this.createLineEntity(this.getDocument(), this.point1, this.point2);
-    e.setCustomProperty("QCAD", "isFloorplan", "1");
+    e.setCustomProperty("QCAD", "isFloorplan", 1);
+    e.setCustomProperty("QCAD", "roomId", roomId);
+    roomOperation.addObject(e);
+    return roomOperation;
+};
+
+Floorplan.prototype.getSingleOperation = function(preview) {
+    if (!isVector(this.point1) || !isVector(this.point2)) {
+        return undefined;
+    }
+    var e = this.createLineEntity(this.getDocument(), this.point1, this.point2);
+    e.setCustomProperty("QCAD", "isFloorplan", 1);
     return new RAddObjectOperation(e, this.getToolTitle());
 };
 

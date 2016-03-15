@@ -63,7 +63,7 @@ CandidatePoint.prototype.getOperation = function(preview) {
         this.getDocument(),
         new RPointData(this.point)
     );
-    e.setCustomProperty("QCAD", "isCandidate", "1");
+    e.setCustomProperty("QCAD", "isCandidate", 1);
     op.addObject(e);
     return op;
 };
