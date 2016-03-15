@@ -138,6 +138,7 @@ Floorplan.prototype.pickCoordinate = function(event, preview) {
             this.updatePreview();
         }
         else {
+
             var op = this.getOperation(preview);
             if (!isNull(op)) {
                 
@@ -172,15 +173,19 @@ Floorplan.prototype.getOperation = function(preview) {
         return undefined;
     }
     var roomOperation = new RAddObjectsOperation(false);
+    var orderInRoom = 0;
     for(var i = this.roomStartingIndex; i < this.pointList.length-1; i++){
         var e = this.createLineEntity(this.getDocument(), this.pointList[i], this.pointList[i+1]);
         e.setCustomProperty("QCAD", "isFloorplan", 1);
         e.setCustomProperty("QCAD", "roomId", roomId);
+        e.setCustomProperty("QCAD", "orderInRoom", orderInRoom);
         roomOperation.addObject(e);
+        orderInRoom++;
     }
     var e = this.createLineEntity(this.getDocument(), this.point1, this.point2);
     e.setCustomProperty("QCAD", "isFloorplan", 1);
     e.setCustomProperty("QCAD", "roomId", roomId);
+    e.setCustomProperty("QCAD", "orderInRoom", orderInRoom);
     roomOperation.addObject(e);
     return roomOperation;
 };

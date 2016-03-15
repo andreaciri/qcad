@@ -80,6 +80,7 @@ SensorsWidget.prototype.beginEvent = function() {
         if(ent.getCustomProperty("QCAD", "isFloorplan", null)){
             floorPoints.push(ent.getStartPoint());
             appWin.handleUserMessage("ROOM ID: " + ent.getCustomProperty("QCAD", "roomId", null));
+            appWin.handleUserMessage("ORDER IN ROOM: " + ent.getCustomProperty("QCAD", "orderInRoom", null));
         }
         else if(ent.getCustomProperty("QCAD", "isCandidate", null)) {
             candidates.push(ent.getPosition());
