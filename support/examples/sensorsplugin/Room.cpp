@@ -13,6 +13,22 @@ Room::Room (int id, QList<RVector> roomPoints) {
     this->precalc_values();
 }
 
+bool Room::isInside(int intX, int intY){
+    double x = (double) intX;
+    double y = (double) intY;
+    int i;
+    int j = polyCorners - 1;
+    bool oddNodes = false;
+
+    for (i = 0; i < numberOfPoints; i++) {
+        if ((polyY[i] < y && polyY[j] >= y
+             ||   polyY[j] < y && polyY[i] >= y)) {
+            oddNodes ^= (y * multiple[i] + constant[i] < x); // ^ operator is the bit-wise XOR
+        }
+        j=i;
+    }
+    return oddNodes;
+}
 
 void Room::precalc_values() {
 

@@ -15,6 +15,7 @@ public:
     int numberOfPoints;
     QList<double> polyX;
     QList<double> polyY;
+    bool isInside(int x, int y);
 private:
     QList<double> constant; // Storage for precalculated constants (same size as polyX)
     QList<double> multiple; // Storage for precalculated multipliers (same size as polyX)
