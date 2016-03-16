@@ -68,9 +68,11 @@ SensorsWidget.prototype.beginEvent = function() {
     var allEntities = this.getDocument().queryAllEntities(false, false, RS.EntityAll);
     var ent;
     var typeKey;
-    var floorPoints = [];
+    var rooms = [];
+    var roomsArray = [];
+    var roomSides = [];
     var candidates = [];
-    var i, x, y;
+    var i, x, y, roomId, orderInRoom;
 
     for(i=0; i<allEntities.length; i++){
 
@@ -78,9 +80,15 @@ SensorsWidget.prototype.beginEvent = function() {
         //typeKey = ent.getCustomPropertyKeys("QCAD");
 
         if(ent.getCustomProperty("QCAD", "isFloorplan", null)){
-            floorPoints.push(ent.getStartPoint());
-            appWin.handleUserMessage("ROOM ID: " + ent.getCustomProperty("QCAD", "roomId", null));
-            appWin.handleUserMessage("ORDER IN ROOM: " + ent.getCustomProperty("QCAD", "orderInRoom", null));
+            // ent is a RLineEntity
+            roomId = ent.getCustomProperty("QCAD", "roomId", null);
+            orderInRoom = ent.getCustomProperty("QCAD", "orderInRoom", null);
+            if(typeof rooms[roomId] == 'undefined'){
+                rooms[roomId] = [];
+            }
+            rooms[roomId][orderInRoom] = ent.getStartPoint();
+            appWin.handleUserMessage("ROOM ID: " + roomId);
+            appWin.handleUserMessage("ORDER IN ROOM: " + orderInRoom);
         }
         else if(ent.getCustomProperty("QCAD", "isCandidate", null)) {
             candidates.push(ent.getPosition());
@@ -90,15 +98,25 @@ SensorsWidget.prototype.beginEvent = function() {
             }
 
     }
-    return;
+    x=0;
+    for(i=0; i < rooms.length; i++){
+        // i is the index of room inside the fllorplan
+        roomSides[i] = 0;
+        for(j=0; j< rooms[i].length; j++){
+            // j is the index of a point inside the room
+            roomsArray[x] = rooms[i][j];
+            x++;
+            roomSides[i]++;
+        }
+    }
+
     var boundingBox = this.getDocument().getBoundingBox().getCorners2d();
-    appWin.handleUserMessage("Floorplan points: " + floorPoints);
+    appWin.handleUserMessage("Floorplan entites (walls): " + rooms);
     appWin.handleUserMessage("Candidate points: " + candidates);
     appWin.handleUserMessage("Bounding box corners: " + boundingBox);
     appWin.handleUserMessage("Aimed percentage of coverage: " + aimedCoverage +"%");
     appWin.handleUserMessage("Using candidate points: " + (wantCandidates? "Yes" : "No"));
-
-    var coveragePlugin = new CoveragePlugin(sensorRange, floorPoints, candidates, boundingBox, wantCandidates, aimedCoverage);
+    var coveragePlugin = new CoveragePlugin(sensorRange, roomsArray, candidates, boundingBox, wantCandidates, aimedCoverage, roomSides);
     var resultJSON = coveragePlugin.start();
 
     if(errorCheck(resultJSON)){

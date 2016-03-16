@@ -11,6 +11,7 @@
 #include "greedy.hpp"
 #include "util.hpp"
 #include "vnsheuristic.hpp"
+#include "Room.hpp"
 
 
 bool RSensorsPlugin::init() {
@@ -76,8 +77,18 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 
 QString CoveragePlugin::start(){
     int BoundingCoo[4][2];
-    int i, estimateMin;
+    int i, j, estimateMin;
     float currentCoverage;
+    int numberOfRooms = this->roomSides.length();
+    QList<Room> rooms;
+
+    j = 0;
+    for(i = 0; i < numberOfRooms; i++){
+        Room *r = new Room(i, this->floorPoints.mid(j, this->roomSides[i]));
+        rooms.append(*r);
+        j += this->roomSides[i];
+    }
+    return QString("temp ERROR");
 
     for(i = 0; i < this->boundingBox.length(); i++){
         BoundingCoo[i][0] = (int) this->boundingBox[i].getX();
@@ -146,11 +157,12 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         CoveragePlugin* cppResult = new CoveragePlugin();
         return engine->newQObject(context->thisObject(), cppResult);
     }
-    else if(context->argumentCount()==6 && context->argument(3).isArray()) {
+    else if(context->argumentCount()==7 && context->argument(3).isArray()) {
         CoveragePlugin* cppResult = new CoveragePlugin();
         QList<RVector> fP;
         QList<RVector> cand;
         QList<RVector> box;
+        QList<int> rs;
         int range;
         float aimedCoverage;
         bool wantCandidates;
@@ -168,6 +180,8 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         cppResult->wantCandidates = wantCandidates;
         aimedCoverage = context->argument(5).toNumber() / 100.00;
         cppResult->aimedCoverage = aimedCoverage;
+        REcmaHelper::fromScriptValue(engine, context->argument(6), rs);
+        cppResult->roomSides = rs;
         return engine->newQObject(context->thisObject(), cppResult);
     }
     else {

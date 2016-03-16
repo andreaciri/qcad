@@ -1,7 +1,7 @@
 // Floorplan.js
 // Include base class definition:
 include("../SmartBuilding.js");
-var roomId = 1; 
+var roomId = 0;
 // Constructor calls base class constructor:
 function Floorplan(guiAction) {
     SmartBuilding.call(this, guiAction);

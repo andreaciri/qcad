@@ -46,6 +46,7 @@ public:
     QList<RVector> floorPoints;
     QList<RVector> candidates;
     QList<RVector> boundingBox;
+    QList<int> roomSides;
 public slots:
     QString start();
 };
