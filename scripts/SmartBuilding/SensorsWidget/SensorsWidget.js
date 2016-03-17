@@ -101,6 +101,9 @@ SensorsWidget.prototype.beginEvent = function() {
     //TODO: fix bug for sparse rooms vector
     x=0;
     for(i=0; i < rooms.length; i++){
+        if(typeof rooms[i] == 'undefined'){
+            continue;
+        }
         // i is the index of room inside the floorplan
         roomSides[i] = 0;
         for(j=0; j< rooms[i].length; j++){
