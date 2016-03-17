@@ -57,6 +57,7 @@ ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QL
         for(i = 0; i < locations.length(); i++){
             pPD->rows[r][0] = locations[i][0];
             pPD->rows[r][1] = locations[i][1];
+            r++;
         }
 
         for (c = 0; c < candidates.length(); c++){
