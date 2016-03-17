@@ -116,7 +116,7 @@ QString CoveragePlugin::start(){
     }
 
     QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
-    DestroyProblemData(&pData);
+    //DestroyProblemData(&pData);
     return resultJSON;
 }
 
