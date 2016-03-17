@@ -98,7 +98,7 @@ SensorsWidget.prototype.beginEvent = function() {
             }
 
     }
-    //TODO: fix bug for sparse rooms vector
+
     x=0;
     for(i=0; i < rooms.length; i++){
         if(typeof rooms[i] == 'undefined'){
@@ -141,9 +141,13 @@ SensorsWidget.prototype.beginEvent = function() {
         this.getDocument(),
         new RCircleData(new RVector(x, y, 0), sensorRange)
         );
+        var square = new RPolylineData(new RPolyline(new Array(new RVector(x-0.4,y+0.4),
+            new RVector(x+0.4,y+0.4),new RVector(x+0.4,y-0.4),new RVector(x-0.4,y-0.4),new RVector(x-0.4,y+0.4)), true));
         // TODO non cambia il colore
         circle.setColor(new RColor("blue"));
+        //square.setColor(new RColor("blue"));
         resultView.addObject(circle);
+        resultView.addObject(new RPolylineEntity(this.getDocument(), square));
     }
     
     this.getDocumentInterface().applyOperation(resultView);
