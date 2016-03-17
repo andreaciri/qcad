@@ -88,14 +88,14 @@ QString CoveragePlugin::start(){
         rooms.append(*r);
         j += this->roomSides[i];
     }
-    return QString("temp ERROR");
+    //return QString("temp ERROR");
 
     for(i = 0; i < this->boundingBox.length(); i++){
         BoundingCoo[i][0] = (int) this->boundingBox[i].getX();
         BoundingCoo[i][1] = (int) this->boundingBox[i].getY();
     }
 
-    ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->wantCandidates, this->candidates);
+    ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->wantCandidates, this->candidates, rooms);
 
     estimateMin = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange) * (this->sensorRange) * 3.14));
     if(this->wantCandidates && estimateMin > this->candidates.length()){

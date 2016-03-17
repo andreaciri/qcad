@@ -2,16 +2,30 @@
 #include "problem_data.hpp"
 
 
-ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QList<RVector> candidates)
+ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms)
 {
     ProblemData *pPD;
     int r,c, m, i;
     int *V;
     int count;
+    QVector<QVector <int> > locations;
+    QVector<int> coo;
 
-    int boxLenght = boundingBox[1][0] - boundingBox[0][0];
-    int boxHeight = boundingBox[2][1] - boundingBox[1][1];
-    int nr = (boxLenght + 1) * (boxHeight + 1);
+    for (int y = boundingBox[1][1]; y<= boundingBox[2][1]; y++){
+        for (int x = boundingBox[0][0]; x<= boundingBox[1][0]; x++){
+            // For each point in the bounding box
+
+            for(i = 0; i < rooms.length(); i++){
+                if(rooms[i].isInside(x, y)){
+                    coo = QVector<int>() << x << y;
+                    locations.append(coo);
+                    break;
+                }
+            }
+        }
+    }
+
+    int nr = locations.length();
     int nc;
     if (onlyCandidates){
         nc = candidates.length();
@@ -19,9 +33,6 @@ ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QL
     else {
         nc = nr;
     }
-
-    int rows[nr][2]; // Demand centers: array of [x,y] coordinates
-    int columns[nc][2]; // Facility sites: array of [x,y] coordinates
 
     pPD = (ProblemData *) calloc(1,sizeof(ProblemData));
 
@@ -41,45 +52,33 @@ ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QL
         {
             pPD->columns[c] = (int *) calloc(2,sizeof(int));
         }
-        r = 0;
-        for (int y = boundingBox[1][1]; y<= boundingBox[2][1]; y++){
-            for (int x = boundingBox[0][0]; x<= boundingBox[1][0]; x++){
-                rows[r][0] = x;
-                rows[r][1] = y;
-                pPD->rows[r+1][0] = x;
-                pPD->rows[r+1][1] = y;
-                r++;
-            }
+
+        r = 1;
+        for(i = 0; i < locations.length(); i++){
+            pPD->rows[r][0] = locations[i][0];
+            pPD->rows[r][1] = locations[i][1];
         }
 
         for (c = 0; c < candidates.length(); c++){
-            columns[c][0] = candidates[c].getX();
-            columns[c][1] = candidates[c].getY();
             pPD->columns[c+1][0] = candidates[c].getX();
             pPD->columns[c+1][1] = candidates[c].getY();
         }
     }
 
     else{
-        //No candidates from user so rows and columns are same locations
+        //No candidates from user so rows and columns are the entire locations set
         for (r = 1; r <= pPD->nr; r++)
         {
             pPD->rows[r] = (int *) calloc(2,sizeof(int));
             pPD->columns[r] = (int *) calloc(2,sizeof(int));
         }
-        i = 0;
-        for (int y = boundingBox[1][1]; y<= boundingBox[2][1]; y++){
-            for (int x = boundingBox[0][0]; x<= boundingBox[1][0]; x++){
-                rows[i][0] = x;
-                rows[i][1] = y;
-                columns[i][0] = x;
-                columns[i][1] = y;
-                pPD->rows[i+1][0] = x;
-                pPD->rows[i+1][1] = y;
-                pPD->columns[i+1][0] = x;
-                pPD->columns[i+1][1] = y;
-                i++;
-            }
+        r = 1;
+        for(i = 0; i < locations.length(); i++){
+            pPD->rows[r][0] = locations[i][0];
+            pPD->rows[r][1] = locations[i][1];
+            pPD->columns[r][0] = locations[i][0];
+            pPD->columns[r][1] = locations[i][1];
+            r++;
         }
     }
 
@@ -123,11 +122,14 @@ ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QL
             count = 0;
             for (r = 1; r <= pPD->nr; r++){
 
-                if (distance(columns[c-1], rows[r-1]) <= range){
+                if (distance(pPD->columns[c], pPD->rows[r]) <= range){
                     // Position r is covered by forniture c
                     // cont = number of positions covered by c in mode m
                     V[count] = r;
                     count++;
+                }
+                else{
+                    int fuck;
                 }
             }
             pPD->Copertura[m][c] = (int *) calloc(count+1,sizeof(int));

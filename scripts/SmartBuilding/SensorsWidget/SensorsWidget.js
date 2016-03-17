@@ -98,9 +98,10 @@ SensorsWidget.prototype.beginEvent = function() {
             }
 
     }
+    //TODO: fix bug for sparse rooms vector
     x=0;
     for(i=0; i < rooms.length; i++){
-        // i is the index of room inside the fllorplan
+        // i is the index of room inside the floorplan
         roomSides[i] = 0;
         for(j=0; j< rooms[i].length; j++){
             // j is the index of a point inside the room
