@@ -129,9 +129,6 @@ ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QL
                     V[count] = r;
                     count++;
                 }
-                else{
-                    int fuck;
-                }
             }
             pPD->Copertura[m][c] = (int *) calloc(count+1,sizeof(int));
             pPD->Copertura[m][c][0] = count;
