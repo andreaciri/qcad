@@ -26,7 +26,7 @@ typedef struct _problemdata ProblemData;
 
 
 
-ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms);
+ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms);
 double distance (int p1[2], int p2[2]);
 void DestroyProblemData (ProblemData **pPD);
 

@@ -97,7 +97,8 @@ QString CoveragePlugin::start(){
 
     ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->wantCandidates, this->candidates, rooms);
 
-    estimateMin = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange) * (this->sensorRange) * 3.14));
+    //TODO: use the smallest range to estimate min
+    estimateMin = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange[0]) * (this->sensorRange[0]) * 3.14));
     if(this->wantCandidates && estimateMin > this->candidates.length()){
         return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
     }
@@ -157,18 +158,19 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         CoveragePlugin* cppResult = new CoveragePlugin();
         return engine->newQObject(context->thisObject(), cppResult);
     }
-    else if(context->argumentCount()==7 && context->argument(3).isArray()) {
+    else if(context->argumentCount()==8 && context->argument(3).isArray()) {
         CoveragePlugin* cppResult = new CoveragePlugin();
         QList<RVector> fP;
         QList<RVector> cand;
         QList<RVector> box;
         QList<int> rs;
-        int range;
+        QVector<int> range;
+        QVector<int> cost;
         float aimedCoverage;
         bool wantCandidates;
 
         // convert ECMAScript parameters to C++ variables:
-        range = context->argument(0).toInt32();
+        REcmaHelper::fromScriptValue(engine, context->argument(0), range);
         cppResult->sensorRange = range;
         REcmaHelper::fromScriptValue(engine, context->argument(1), fP);
         cppResult->floorPoints = fP;
@@ -182,6 +184,8 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         cppResult->aimedCoverage = aimedCoverage;
         REcmaHelper::fromScriptValue(engine, context->argument(6), rs);
         cppResult->roomSides = rs;
+        REcmaHelper::fromScriptValue(engine, context->argument(7), cost);
+        cppResult->sensorCost = cost;
         return engine->newQObject(context->thisObject(), cppResult);
     }
     else {

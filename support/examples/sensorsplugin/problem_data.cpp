@@ -2,7 +2,7 @@
 #include "problem_data.hpp"
 
 
-ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms)
+ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms)
 {
     ProblemData *pPD;
     int r,c, m, i;
@@ -38,7 +38,7 @@ ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QL
 
     pPD->nr = nr;
     pPD->nc = nc;
-    pPD->nm = 1;
+    pPD->nm = range.length();
 
     pPD->rows = (int **) calloc(pPD->nr+1,sizeof(int *));
     pPD->columns = (int **) calloc(pPD->nc+1,sizeof(int *));
@@ -123,7 +123,7 @@ ProblemData *LoadData (int boundingBox[4][2], int range, bool onlyCandidates, QL
             count = 0;
             for (r = 1; r <= pPD->nr; r++){
 
-                if (distance(pPD->columns[c], pPD->rows[r]) <= range){
+                if (distance(pPD->columns[c], pPD->rows[r]) <= range[m-1]){
                     // Position r is covered by forniture c
                     // cont = number of positions covered by c in mode m
                     V[count] = r;

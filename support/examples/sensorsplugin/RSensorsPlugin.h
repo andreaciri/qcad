@@ -40,7 +40,8 @@ class CoveragePlugin : public QObject {
 Q_OBJECT
 public:
     CoveragePlugin() : QObject() {}
-    int sensorRange;
+    QVector<int> sensorRange;
+    QVector<int> sensorCost;
     float aimedCoverage;
     bool wantCandidates;
     QList<RVector> floorPoints;

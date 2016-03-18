@@ -57,13 +57,19 @@ SensorsWidget.prototype.beginEvent = function() {
     // User hit OK. Store the new user input:
     WidgetFactory.saveState(dialog);
     var widgets = getWidgets(dialog);
-    var sensorRange = widgets["SensorRange"].value;
+    var numberOfModes = widgets["Modes"].value;
+    var sensorRange = [numberOfModes];
+    var sensorCost = [numberOfModes];
+    for(var j=0; j<numberOfModes; j++){
+        sensorRange[j] = widgets["SensorRange"+j].value;
+        sensorCost[j] = widgets["SensorCost"+j].value;
+    }
     var aimedCoverage = widgets["AimedCoverage"].value;
     var wantCandidates = widgets["Candidates"].checked;
 
     // Print the user input to the QCAD console:
     var appWin = EAction.getMainWindow();
-    appWin.handleUserMessage("Sensor Range: " + sensorRange);
+    appWin.handleUserMessage("Sensor Range: " + sensorRange[0]);
 
     var allEntities = this.getDocument().queryAllEntities(false, false, RS.EntityAll);
     var ent;
@@ -120,7 +126,9 @@ SensorsWidget.prototype.beginEvent = function() {
     appWin.handleUserMessage("Bounding box corners: " + boundingBox);
     appWin.handleUserMessage("Aimed percentage of coverage: " + aimedCoverage +"%");
     appWin.handleUserMessage("Using candidate points: " + (wantCandidates? "Yes" : "No"));
-    var coveragePlugin = new CoveragePlugin(sensorRange, roomsArray, candidates, boundingBox, wantCandidates, aimedCoverage, roomSides);
+    debugger;
+    var coveragePlugin = new CoveragePlugin(sensorRange, roomsArray, candidates, boundingBox, 
+                                wantCandidates, aimedCoverage, roomSides, sensorCost);
     var resultJSON = coveragePlugin.start();
 
     if(errorCheck(resultJSON)){
@@ -139,7 +147,7 @@ SensorsWidget.prototype.beginEvent = function() {
         y = resultObj.coordinates[i].y;
         var circle = new RCircleEntity(
         this.getDocument(),
-        new RCircleData(new RVector(x, y, 0), sensorRange)
+        new RCircleData(new RVector(x, y, 0), sensorRange[0])
         );
         var square = new RPolylineData(new RPolyline(new Array(new RVector(x-0.4,y+0.4),
             new RVector(x+0.4,y+0.4),new RVector(x+0.4,y-0.4),new RVector(x-0.4,y-0.4),new RVector(x-0.4,y+0.4)), true));
