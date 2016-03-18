@@ -78,7 +78,7 @@ SensorsWidget.prototype.beginEvent = function() {
     var roomsArray = [];
     var roomSides = [];
     var candidates = [];
-    var i, x, y, roomId, orderInRoom;
+    var i, x, y, m, roomId, orderInRoom;
 
     for(i=0; i<allEntities.length; i++){
 
@@ -145,9 +145,10 @@ SensorsWidget.prototype.beginEvent = function() {
     for(i=0; i<resultObj.coordinates.length; i++){
         x = resultObj.coordinates[i].x;
         y = resultObj.coordinates[i].y;
+        m = resultObj.coordinates[i].m - 1;
         var circle = new RCircleEntity(
         this.getDocument(),
-        new RCircleData(new RVector(x, y, 0), sensorRange[0])
+        new RCircleData(new RVector(x, y, 0), sensorRange[m])
         );
         var square = new RPolylineData(new RPolyline(new Array(new RVector(x-0.4,y+0.4),
             new RVector(x+0.4,y+0.4),new RVector(x+0.4,y-0.4),new RVector(x-0.4,y-0.4),new RVector(x-0.4,y+0.4)), true));
