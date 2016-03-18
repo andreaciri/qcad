@@ -102,7 +102,9 @@ QString CoveragePlugin::start(){
     if(this->wantCandidates && estimateMin > this->candidates.length()){
         return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
     }
-    pData->card[1] = estimateMin;
+    for(j = 1; j <= pData->nm; j++){
+        pData->card[j] = estimateMin;
+    }
 
     solution currentSol = vnsheuristic(*pData);
     currentCoverage = (currentSol.sparseMR.size() / pData->nr);
@@ -111,7 +113,9 @@ QString CoveragePlugin::start(){
         if(this->wantCandidates && i > this->candidates.length()){
             return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
         }
-        pData->card[1] = i;
+        for(j = 1; j <= pData->nm; j++){
+            pData->card[j] = i;
+        }
         currentSol = vnsheuristic(*pData);
         currentCoverage = ((float) currentSol.sparseMR.size() / (float) pData->nr);
     }
@@ -122,7 +126,7 @@ QString CoveragePlugin::start(){
 }
 
 QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate){
-    int i, x, y;
+    int i, x, y, m;
     i = 0;
     QString cooString = "[";
     qDebug("VNS Heuristic:");
@@ -130,11 +134,12 @@ QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate)
         i++;
         x = pData->columns[antenna.column][0];
         y = pData->columns[antenna.column][1];
+        m = antenna.mode;
         qDebug("Antenna %d: (x= %d, y= %d)", i, x, y);
         if(i>1){
             QTextStream(&cooString) << ", ";
         }
-        QTextStream(&cooString) << "{x:" << x << ", y:" << y << "}";
+        QTextStream(&cooString) << "{x:" << x << ", y:" << y << ", m:" << m << "}";
     }
     QTextStream(&cooString) << "]";
     qDebug("Current coverage: %f", coverageRate);

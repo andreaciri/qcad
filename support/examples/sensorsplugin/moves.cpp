@@ -45,6 +45,7 @@ void makeAddMove(solution& sol, const MC& mc){
 			MR mr(mc.mode,row);
 			assert(sol.sparseMR.find(mr) == sol.sparseMR.end());
 			assert(sol.uncoveredMR.find(mr) != sol.uncoveredMR.end());
+            // single point covering
 			sol.sparseMR.insert(mr);
 			sol.uncoveredMR.erase(mr);
 			sol.cost+=sol.ins.weight[mc.mode][row];
@@ -72,6 +73,7 @@ void makeDelMove(solution& sol, const MC& mc){
 			MR mr(mc.mode,row);
 			assert(sol.sparseMR.find(mr) != sol.sparseMR.end());
 			assert(sol.uncoveredMR.find(mr) == sol.uncoveredMR.end());
+            //single point uncovering
 			sol.sparseMR.erase(mr);
 			sol.uncoveredMR.insert(mr);
 			sol.cost-=sol.ins.weight[mc.mode][row];
