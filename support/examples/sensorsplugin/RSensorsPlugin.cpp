@@ -95,29 +95,30 @@ QString CoveragePlugin::start(){
         BoundingCoo[i][1] = (int) this->boundingBox[i].getY();
     }
 
-    ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->wantCandidates, this->candidates, rooms);
+    ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->sensorCost, this->wantCandidates, this->candidates, rooms);
 
     //TODO: use the smallest range to estimate min
     estimateMin = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange[0]) * (this->sensorRange[0]) * 3.14));
+    if(estimateMin == 0)
+        estimateMin = 1;
     if(this->wantCandidates && estimateMin > this->candidates.length()){
         return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
     }
-    for(j = 1; j <= pData->nm; j++){
-        pData->card[j] = estimateMin;
-    }
+
+    pData->card[1] = estimateMin;
 
     solution currentSol = vnsheuristic(*pData);
-    currentCoverage = (currentSol.sparseMR.size() / pData->nr);
+    currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
 
     for(i = estimateMin + 1; currentCoverage < aimedCoverage; i++){
         if(this->wantCandidates && i > this->candidates.length()){
             return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
         }
-        for(j = 1; j <= pData->nm; j++){
-            pData->card[j] = i;
-        }
+
+        pData->card[1] = i;
+
         currentSol = vnsheuristic(*pData);
-        currentCoverage = ((float) currentSol.sparseMR.size() / (float) pData->nr);
+        currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
     }
 
     QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
@@ -126,15 +127,16 @@ QString CoveragePlugin::start(){
 }
 
 QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate){
-    int i, x, y, m;
+    int i, x, y, m, c;
     i = 0;
     QString cooString = "[";
     qDebug("VNS Heuristic:");
     for(const auto& antenna: sparseMC){
         i++;
-        x = pData->columns[antenna.column][0];
-        y = pData->columns[antenna.column][1];
-        m = antenna.mode;
+        c = antenna.column;
+        x = pData->columns[c][0];
+        y = pData->columns[c][1];
+        m = (((c-1) - ((c-1) % pData->truenc)) / pData->truenc)+1;
         qDebug("Antenna %d: (x= %d, y= %d)", i, x, y);
         if(i>1){
             QTextStream(&cooString) << ", ";

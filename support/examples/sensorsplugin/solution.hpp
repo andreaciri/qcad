@@ -14,7 +14,8 @@ struct solution{
 	SMR uncoveredMR;		        	//set of uncovered MR
 	std::vector< Sint > cMode;		    //cMode[c] is the set of modes in which column c is used 
 	std::vector< Sint > mCol;		    //mCol[m] is the set of columns in which mode m is used	
-	double cost;						//solution cost
+    std::vector< int > kCoverage;       //kCoverage[r] is the number of facilities that, independently by the mode, cover r
+    double cost;						//solution cost
 
 	//constructor
 	solution(ProblemData& ins);

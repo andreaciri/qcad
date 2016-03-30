@@ -2,7 +2,7 @@
 #include "problem_data.hpp"
 
 
-ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms)
+ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, QVector<int> cost, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms)
 {
     ProblemData *pPD;
     int r,c, m, i;
@@ -24,24 +24,28 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, bool onlyCandi
             }
         }
     }
-
+    int nt = range.length();
     int nr = locations.length();
     int nc;
+    int truenc;
     if (onlyCandidates){
-        nc = candidates.length();
+        truenc = candidates.length();
     }
     else {
-        nc = nr;
+        truenc = nr;
     }
 
     pPD = (ProblemData *) calloc(1,sizeof(ProblemData));
 
+    nc = truenc * nt;
     pPD->nr = nr;
     pPD->nc = nc;
-    pPD->nm = range.length();
+    pPD->truenc = truenc;
+    pPD->nm = 1;
+    pPD->nt = nt;
 
     pPD->rows = (int **) calloc(pPD->nr+1,sizeof(int *));
-    pPD->columns = (int **) calloc(pPD->nc+1,sizeof(int *));
+    pPD->columns = (int **) calloc((pPD->nc+1),sizeof(int *));
     if(onlyCandidates){
         //User wants a solution only from the specified candidates sites
         for (r = 1; r <= pPD->nr; r++)
@@ -59,27 +63,36 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, bool onlyCandi
             pPD->rows[r][1] = locations[i][1];
             r++;
         }
-
+        i=0;
         for (c = 0; c < candidates.length(); c++){
-            pPD->columns[c+1][0] = candidates[c].getX();
-            pPD->columns[c+1][1] = candidates[c].getY();
+            pPD->columns[c+1][0] = candidates[i].getX();
+            pPD->columns[c+1][1] = candidates[i].getY();
+            i++;
+            if(i >= candidates.length()){
+                i=0;
+            }
         }
     }
 
     else{
         //No candidates from user so rows and columns are the entire locations set
+        i=0;
         for (r = 1; r <= pPD->nr; r++)
         {
             pPD->rows[r] = (int *) calloc(2,sizeof(int));
-            pPD->columns[r] = (int *) calloc(2,sizeof(int));
-        }
-        r = 1;
-        for(i = 0; i < locations.length(); i++){
             pPD->rows[r][0] = locations[i][0];
             pPD->rows[r][1] = locations[i][1];
-            pPD->columns[r][0] = locations[i][0];
-            pPD->columns[r][1] = locations[i][1];
-            r++;
+            i++;
+        }
+        i=0;
+        for(c = 1; c <= pPD->nc; c++){
+            pPD->columns[c] = (int *) calloc(2,sizeof(int));
+            pPD->columns[c][0] = locations[i][0];
+            pPD->columns[c][1] = locations[i][1];
+            i++;
+            if(i >= locations.length()){
+                i=0;
+            }
         }
     }
 
@@ -116,14 +129,15 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, bool onlyCandi
 
     // V: temporary array that holds covered centers
     V = (int *) calloc(pPD->nr+1,sizeof(int));
-
+    int currentType;
     for (m = 1; m <= pPD->nm; m++)
         for (c = 1; c <= pPD->nc; c++)
         {
+            currentType = ((c-1) - ((c-1) % truenc)) / truenc;
             count = 0;
             for (r = 1; r <= pPD->nr; r++){
 
-                if (distance(pPD->columns[c], pPD->rows[r]) <= range[m-1]){
+                if (distance(pPD->columns[c], pPD->rows[r]) <= range[currentType]){
                     // Position r is covered by forniture c
                     // cont = number of positions covered by c in mode m
                     V[count] = r;

@@ -7,13 +7,17 @@ using namespace std;
 solution::solution(ProblemData& ins):
 	ins(ins),denseMC(ins.nm+1),
 	usedMRC(ins.nm+1),cMode(ins.nc+1),
-	mCol(ins.nm+1),cost(0.0)
+    mCol(ins.nm+1),kCoverage(ins.nr+1),cost(0.0)
 {
 	for(int m=1;m<=ins.nm;++m){
 		usedMRC[m].assign(ins.nr+1,Sint());
 		denseMC[m].assign(ins.nc+1,false);	
-		for(int r=1;r<=ins.nr;++r)	
+        for(int r=1;r<=ins.nr;++r){
 			uncoveredMR.insert(MR(m,r));
+            if(m==1){
+                kCoverage[r]=0;
+            }
+        }
 	}
 }
 
@@ -27,6 +31,7 @@ solution& solution::operator=(const solution& sol){
 	uncoveredMR=sol.uncoveredMR; 
   cMode=sol.cMode;
   mCol=sol.mCol;
+  kCoverage=sol.kCoverage;
   cost=sol.cost;
 	return *this;
 }

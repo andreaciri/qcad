@@ -10,6 +10,8 @@ struct _problemdata
   int nr;
   int nc;
   int nm;
+  int nt;           //Number of types
+  int truenc;       //True number of column locations
   int **rows;       //Each item is a coordinate [x,y] that represent a demand center
   int **columns;    //Each item is a coordinate [x,y] that represent a candidate facility site
   int ***Copertura; // Sparse vector including the indexes of the rows covered by each mode and column
@@ -26,7 +28,7 @@ typedef struct _problemdata ProblemData;
 
 
 
-ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms);
+ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, QVector<int> cost, bool onlyCandidates, QList<RVector> candidates, QList<Room> rooms);
 double distance (int p1[2], int p2[2]);
 void DestroyProblemData (ProblemData **pPD);
 
