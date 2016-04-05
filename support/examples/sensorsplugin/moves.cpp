@@ -30,7 +30,7 @@ bool evaluateAdd(const solution& sol, const MC& mc, MoveEvaluation& eval){
 		int row=sol.ins.Copertura[mc.mode][mc.column][i];
         // Reward evaluation
         if(sol.usedMRC[mc.mode][row].empty())
-            eval.dCost+=sol.ins.weight[mc.mode][row];
+            eval.dCost+=sol.ins.weight[typeFromColumn(sol, mc)][row];
 	}
 	return true;
 }
@@ -52,7 +52,7 @@ void makeAddMove(solution& sol, const MC& mc){
 			sol.uncoveredMR.erase(mr);
             sol.kCoverage[row]++;
             //Reward computation
-			sol.cost+=sol.ins.weight[mc.mode][row];
+            sol.cost+=sol.ins.weight[typeFromColumn(sol, mc)][row];
 		}
 		assert(sol.usedMRC[mc.mode][row].find(mc.column) == sol.usedMRC[mc.mode][row].end());
 		sol.usedMRC[mc.mode][row].insert(mc.column);
@@ -80,7 +80,7 @@ void makeDelMove(solution& sol, const MC& mc){
             //single point uncovering
 			sol.sparseMR.erase(mr);
 			sol.uncoveredMR.insert(mr);
-			sol.cost-=sol.ins.weight[mc.mode][row];
+            sol.cost-=sol.ins.weight[typeFromColumn(sol, mc)][row];
 		}
 		assert(sol.usedMRC[mc.mode][row].find(mc.column) != sol.usedMRC[mc.mode][row].end());
 		sol.usedMRC[mc.mode][row].erase(mc.column);
@@ -91,4 +91,8 @@ void makeDelMove(solution& sol, const MC& mc){
 	assert(sol.mCol[mc.mode].find(mc.column)!=sol.mCol[mc.mode].end());
 	sol.cMode[mc.column].erase(mc.mode);
 	sol.mCol[mc.mode].erase(mc.column);
+}
+
+int typeFromColumn(const solution& sol, const MC& mc){
+    return ((mc.column-1) - ((mc.column-1) % sol.ins.truenc)) / sol.ins.truenc;
 }

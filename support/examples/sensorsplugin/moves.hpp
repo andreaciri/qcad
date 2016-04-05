@@ -18,4 +18,6 @@ void makeAddMove(solution& sol, const MC& mc);
 
 void makeDelMove(solution& sol, const MC& mc);
 
+int typeFromColumn(const solution& sol, const MC& mc);
+
 #endif
