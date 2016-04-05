@@ -16,7 +16,7 @@ struct _problemdata
   int **columns;    //Each item is a coordinate [x,y] that represent a candidate facility site
   int ***Copertura; // Sparse vector including the indexes of the rows covered by each mode and column
                     // Copertura[m][c][0] provides the number of rows covered in mode m by column c
-  double **weight;  // Weight in each mode of each row
+  double **weight;  // Weight in each type of each row
   double wtot;      // Sum of all weights
   int *b;           // Maximum number of modes for each column
   int bMax;         // Maximum of all b[cj]

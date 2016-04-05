@@ -104,11 +104,11 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, QVector<int> c
     pPD->b = (int *) calloc(pPD->nc+1,sizeof(int));
     pPD->b[1] = 1;
 
-    pPD->weight = (double **) calloc(pPD->nm+1,sizeof(double *));
+    pPD->weight = (double **) calloc(pPD->nt+1,sizeof(double *));
 
-    for (m = 1; m <= pPD->nm; m++)
+    for (int t = 1; t <= pPD->nt; t++)
     {
-        pPD->weight[m] = (double *) calloc(pPD->nr+1,sizeof(double));
+        pPD->weight[t] = (double *) calloc(pPD->nr+1,sizeof(double));
 
     }
 
@@ -156,9 +156,9 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, QVector<int> c
 
     free(V);
 
-    for (m = 1; m <= pPD->nm; m++)
+    for (int t = 1; t <= pPD->nt; t++)
         for (r = 1; r <= pPD->nr; r++)
-            pPD->weight[m][r] = 1.0;
+            pPD->weight[t][r] = (1/cost[t-1]);
 
     for (c = 1; c <= pPD->nc; c++)
         pPD->b[c] = 1;
@@ -169,9 +169,9 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, QVector<int> c
 
 
     pPD->wtot = 0.0;
-    for (m = 1; m <= pPD->nm; m++)
+    for (int t = 1; t <= pPD->nt; t++)
         for (r = 1; r <= pPD->nr; r++)
-            pPD->wtot += pPD->weight[m][r];
+            pPD->wtot += pPD->weight[t][r];
 
     return pPD;
 }
@@ -188,8 +188,8 @@ void DestroyProblemData (ProblemData **pPD)
   free((*pPD)->b);
   free((*pPD)->card);
 
-  for (m = 1; m <= (*pPD)->nm; m++)
-    free((*pPD)->weight[m]);
+  for (int t = 1; t <= (*pPD)->nt; t++)
+    free((*pPD)->weight[t]);
   free((*pPD)->weight);
 
   if ((*pPD)->row_deg != NULL)
