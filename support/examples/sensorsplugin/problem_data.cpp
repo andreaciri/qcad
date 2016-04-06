@@ -158,7 +158,7 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, QVector<int> c
 
     for (int t = 1; t <= pPD->nt; t++)
         for (r = 1; r <= pPD->nr; r++)
-            pPD->weight[t][r] = (1/cost[t-1]);
+            pPD->weight[t][r] = (double) ((1.0/(double)cost[t-1]));
 
     for (c = 1; c <= pPD->nc; c++)
         pPD->b[c] = 1;

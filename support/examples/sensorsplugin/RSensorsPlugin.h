@@ -10,6 +10,7 @@
 #include "RPluginInterface.h"
 #include "problem_data.hpp"
 #include "types.hpp"
+#include "solution.hpp"
 
 class MyAction : public RActionAdapter {
 public:
@@ -53,6 +54,8 @@ public slots:
 };
 
 QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate);
+
+solution binarySearch(int low, solution lower, int up, solution upper, float aimedCoverage);
 
 Q_DECLARE_METATYPE(CoveragePlugin*)
 

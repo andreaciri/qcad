@@ -77,7 +77,7 @@ RPluginInfo RSensorsPlugin::getPluginInfo() {
 
 QString CoveragePlugin::start(){
     int BoundingCoo[4][2];
-    int i, j, estimateMin;
+    int i, j, estimateMin, estimateMax, maxRange, minRange;
     float currentCoverage;
     int numberOfRooms = this->roomSides.length();
     QList<Room> rooms;
@@ -97,34 +97,83 @@ QString CoveragePlugin::start(){
 
     ProblemData* pData = LoadData(BoundingCoo, this->sensorRange, this->sensorCost, this->wantCandidates, this->candidates, rooms);
 
-    //TODO: use the smallest range to estimate min
-    estimateMin = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange[0]) * (this->sensorRange[0]) * 3.14));
+    maxRange = 0;
+    minRange = 0;
+    for (i=1; i<this->sensorRange.size();i++){
+        if(this->sensorRange[i] > this->sensorRange[maxRange])
+            maxRange = i;
+        else if(this->sensorRange[i] < this->sensorRange[minRange])
+            minRange = i;
+    }
+
+    estimateMin = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange[maxRange]) * (this->sensorRange[maxRange]) * 3.14));
+    estimateMax = (int) floor((pData->nr * this->aimedCoverage) / ((this->sensorRange[minRange]) * (this->sensorRange[minRange]) * 3.14));
     if(estimateMin == 0)
         estimateMin = 1;
+    if(estimateMax == 0)
+        estimateMax = 1;
     if(this->wantCandidates && estimateMin > this->candidates.length()){
         return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
     }
 
-    pData->card[1] = estimateMin;
 
-    solution currentSol = vnsheuristic(*pData);
-    currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
-
-    for(i = estimateMin + 1; currentCoverage < aimedCoverage; i++){
-        if(this->wantCandidates && i > this->candidates.length()){
-            return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
-        }
-
-        pData->card[1] = i;
-
-        currentSol = vnsheuristic(*pData);
+    if(this->sensorRange.length() <= 1){
+        pData->card[1] = estimateMin;
+        solution currentSol = vnsheuristic(*pData);
         currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
+        for(i = estimateMin + 1; currentCoverage < aimedCoverage; i++){
+                if(this->wantCandidates && i > this->candidates.length()){
+                    return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
+                }
+
+                pData->card[1] = i;
+
+                currentSol = vnsheuristic(*pData);
+                currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
+            }
+
+            QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
+            //DestroyProblemData(&pData);
+            return resultJSON;
     }
+
+    pData->card[1] = estimateMin;
+    solution lowerSol = vnsheuristic(*pData);
+    pData->card[1] = estimateMax;
+    solution upperSol = vnsheuristic(*pData);
+    solution currentSol = binarySearch(estimateMin, lowerSol, estimateMax, upperSol, aimedCoverage);
+    currentCoverage = ((float) currentSol.sparseMR.size() / (float) (currentSol.ins.nr));
+
 
     QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
     //DestroyProblemData(&pData);
     return resultJSON;
 }
+
+solution binarySearch(int low, solution lower, int up, solution upper, float aimedCoverage){
+
+    int lowerCoverage = ((float) lower.sparseMR.size() / (float) low);
+    int upperCoverage = ((float) upper.sparseMR.size() / (float) up);
+    int medium = (low + up)/2;
+    if(medium - low < 2){
+        if(lowerCoverage < aimedCoverage && upperCoverage >= aimedCoverage)
+            return upper;
+        if(lowerCoverage >= aimedCoverage && upperCoverage < aimedCoverage)
+            return lower;
+        return (lower.cost > upper.cost) ? lower : upper;
+    }
+
+    lower.ins.card[1] = medium;
+    solution currentSol = vnsheuristic(lower.ins);
+    if(lowerCoverage < aimedCoverage && upperCoverage >= aimedCoverage)
+        return binarySearch(medium, currentSol, up, upper, aimedCoverage);
+    if(lowerCoverage >= aimedCoverage && upperCoverage < aimedCoverage)
+        return binarySearch(low, lower, medium, currentSol, aimedCoverage);
+    return (lower.cost > upper.cost) ? binarySearch(low, lower, medium, currentSol, aimedCoverage) : binarySearch(medium, currentSol, up, upper, aimedCoverage);;
+
+}
+
+//TODO: funzione totalPrice per soluzione
 
 QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate){
     int i, x, y, m, c;
