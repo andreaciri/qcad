@@ -208,8 +208,8 @@ void ConfigureParameters (HeuristicParam *pHP, int nc)
     pHP->MaxTime = INFINITE;
     //pHP->LST = NONE;
     pHP->LST = LS_TYPE_VNS;
-    pHP->MaxVNSRestarts = 50;
-    pHP->MaxIter = 50;
+    pHP->MaxVNSRestarts = 15;
+    pHP->MaxIter = 15;
     pHP->kMin = 1;
     pHP->kMax = nc; // Default is nc, which is not known yet
     pHP->kDelta = 1;
