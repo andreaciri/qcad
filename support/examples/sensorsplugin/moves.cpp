@@ -94,5 +94,6 @@ void makeDelMove(solution& sol, const MC& mc){
 }
 
 int typeFromColumn(const solution& sol, const MC& mc){
-    return ((mc.column-1) - ((mc.column-1) % sol.ins.truenc)) / sol.ins.truenc;
+    int type = ((mc.column-1) - ((mc.column-1) % sol.ins.truenc)) / sol.ins.truenc;
+    return type + 1;
 }
