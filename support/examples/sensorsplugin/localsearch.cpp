@@ -192,7 +192,7 @@ double SearchState::computeArcCost(int c1,int t1,int c2, int t2){
 
 	double cost=0.0;
 	for(int r=1;r<=sol.ins.nr;++r){
-		cost+=rowChange[r]*sol.ins.weight[m2][r];
+        cost+=rowChange[r]*sol.ins.weight[typeFromColumn(sol, MC(1, c1))][r];
 	}
 
 
