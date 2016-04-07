@@ -53,9 +53,11 @@ public slots:
     QString start();
 };
 
+int totalPrice(solution sol, QVector<int> sensorCost);
+
 QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate);
 
-solution binarySearch(int low, solution lower, int up, solution upper, float aimedCoverage);
+solution binarySearch(int low, solution lower, int up, solution upper, float aimedCoverage, QVector<int> sensorCost);
 
 Q_DECLARE_METATYPE(CoveragePlugin*)
 

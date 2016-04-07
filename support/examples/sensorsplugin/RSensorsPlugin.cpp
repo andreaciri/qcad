@@ -12,6 +12,7 @@
 #include "util.hpp"
 #include "vnsheuristic.hpp"
 #include "Room.hpp"
+#include "moves.hpp"
 
 
 bool RSensorsPlugin::init() {
@@ -56,7 +57,7 @@ void RSensorsPlugin::initScriptExtensions(QScriptEngine& engine) {
     REcmaHelper::registerFunction(&engine, proto, RSensorsPlugin::CoveragePluginToString, "toString");
 
     engine.setDefaultPrototype(qMetaTypeId<CoveragePlugin*>(), *proto);
-                        
+
     //qScriptRegisterMetaType<CoveragePlugin*>(&engine, toScriptValue, fromScriptValue, *proto);
 
     QScriptValue ctor = engine.newFunction(RSensorsPlugin::createCoveragePlugin, *proto, 0);
@@ -117,63 +118,86 @@ QString CoveragePlugin::start(){
     }
 
 
-    if(this->sensorRange.length() <= 1){
-        pData->card[1] = estimateMin;
-        solution currentSol = vnsheuristic(*pData);
+    pData->card[1] = estimateMin;
+    solution currentSol = vnsheuristic(*pData);
+    currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
+    for(i = estimateMin + 1; currentCoverage < aimedCoverage; i++){
+        if(this->wantCandidates && i > this->candidates.length()){
+            return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
+        }
+
+        pData->card[1] = i;
+        currentSol = vnsheuristic(*pData);
         currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
-        for(i = estimateMin + 1; currentCoverage < aimedCoverage; i++){
-                if(this->wantCandidates && i > this->candidates.length()){
-                    return QString("ERROR: INSUFFICIENT CANDIDATE SITES FOR THE AIMED COVERAGE.");
-                }
-
-                pData->card[1] = i;
-
-                currentSol = vnsheuristic(*pData);
-                currentCoverage = ((float) currentSol.sparseMR.size() / (float) (pData->nr));
-            }
-
-            QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
-            //DestroyProblemData(&pData);
-            return resultJSON;
     }
 
-    pData->card[1] = estimateMin;
-    solution lowerSol = vnsheuristic(*pData);
-    pData->card[1] = estimateMax;
-    solution upperSol = vnsheuristic(*pData);
-    solution currentSol = binarySearch(estimateMin, lowerSol, estimateMax, upperSol, aimedCoverage);
-    currentCoverage = ((float) currentSol.sparseMR.size() / (float) (currentSol.ins.nr));
-
+    if(this->sensorRange.length() > 1){
+        int startCard = i;
+        int increment, tempCoverage;
+        solution tempSol = vnsheuristic(*pData);
+        while(i < (startCard + startCard/2)){
+            increment = startCard/3;
+            if(increment < 1)
+                increment = 1;
+            i += increment;
+            pData->card[1] = i;
+            tempSol = vnsheuristic(*pData);
+            tempCoverage = ((float) tempSol.sparseMR.size() / (float) (pData->nr));
+            if(tempCoverage >= aimedCoverage && totalPrice(tempSol, this->sensorCost) < totalPrice(currentSol, this->sensorCost)){
+                currentCoverage = tempCoverage;
+            }
+        }
+    }
 
     QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
-    //DestroyProblemData(&pData);
     return resultJSON;
+
+//DestroyProblemData(&pData);
+//    pData->card[1] = estimateMin;
+//    solution lowerSol = vnsheuristic(*pData);
+//    pData->card[1] = estimateMax;
+//    solution upperSol = vnsheuristic(*pData);
+//    solution currentSol = binarySearch(estimateMin, lowerSol, estimateMax, upperSol, aimedCoverage, this->sensorCost);
+//    currentCoverage = ((float) currentSol.sparseMR.size() / (float) (currentSol.ins.nr));
+//    qDebug("TOTAL PRICE= %d", totalPrice(currentSol, this->sensorCost));
+
+//    QString resultJSON = generateJSONResult(pData, currentSol.sparseMC, currentCoverage);
+//    //DestroyProblemData(&pData);
+//    return resultJSON;
 }
 
-solution binarySearch(int low, solution lower, int up, solution upper, float aimedCoverage){
+solution binarySearch(int low, solution lower, int up, solution upper, float aimedCoverage, QVector<int> sensorCost){
 
-    int lowerCoverage = ((float) lower.sparseMR.size() / (float) low);
-    int upperCoverage = ((float) upper.sparseMR.size() / (float) up);
+    int lowerCoverage = ((float) lower.sparseMR.size() / (float) (lower.ins.nr));
+    int upperCoverage = ((float) upper.sparseMR.size() / (float) (upper.ins.nr));
     int medium = (low + up)/2;
-    if(medium - low < 2){
+    if(medium - low < 1){
         if(lowerCoverage < aimedCoverage && upperCoverage >= aimedCoverage)
             return upper;
         if(lowerCoverage >= aimedCoverage && upperCoverage < aimedCoverage)
             return lower;
-        return (lower.cost > upper.cost) ? lower : upper;
+        return (totalPrice(lower, sensorCost) < totalPrice(upper, sensorCost)) ? lower : upper;
     }
 
     lower.ins.card[1] = medium;
     solution currentSol = vnsheuristic(lower.ins);
+    //int currentCoverage = ((float) currentSol.sparseMR.size() / (float) );
     if(lowerCoverage < aimedCoverage && upperCoverage >= aimedCoverage)
-        return binarySearch(medium, currentSol, up, upper, aimedCoverage);
+        return binarySearch(medium, currentSol, up, upper, aimedCoverage, sensorCost);
     if(lowerCoverage >= aimedCoverage && upperCoverage < aimedCoverage)
-        return binarySearch(low, lower, medium, currentSol, aimedCoverage);
-    return (lower.cost > upper.cost) ? binarySearch(low, lower, medium, currentSol, aimedCoverage) : binarySearch(medium, currentSol, up, upper, aimedCoverage);;
+        return binarySearch(low, lower, medium, currentSol, aimedCoverage, sensorCost);
+    //if(lowerCoverage < aimedCoverage && upperCoverage < aimedCoverage && currentCoverage < aimedCoverage)
+    return (lowerCoverage > upperCoverage) ? binarySearch(low, lower, medium, currentSol, aimedCoverage, sensorCost) : binarySearch(medium, currentSol, up, upper, aimedCoverage, sensorCost);
 
 }
 
-//TODO: funzione totalPrice per soluzione
+int totalPrice(solution sol, QVector<int> sensorCost){
+    int price = 0;
+    for(const auto& node: sol.sparseMC){
+        price = price + sensorCost[(typeFromColumn(sol, node) - 1)];
+    }
+    return price;
+}
 
 QString generateJSONResult(ProblemData* pData, SMC sparseMC, float coverageRate){
     int i, x, y, m, c;

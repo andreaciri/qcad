@@ -205,13 +205,13 @@ void ConfigureParameters (HeuristicParam *pHP, int nc)
 {
     int c;
 
-    pHP->MaxTime = INFINITE;
+    pHP->MaxTime = 2;
     //pHP->LST = NONE;
     pHP->LST = LS_TYPE_VNS;
     pHP->MaxVNSRestarts = 15;
     pHP->MaxIter = 15;
     pHP->kMin = 1;
-    pHP->kMax = nc; // Default is nc, which is not known yet
+    pHP->kMax = (nc/2)+1; // Default is nc, which is not known yet
     pHP->kDelta = 1;
     pHP->FirstBest = false;
 
