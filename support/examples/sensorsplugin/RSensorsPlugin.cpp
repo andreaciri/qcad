@@ -134,9 +134,9 @@ QString CoveragePlugin::start(){
     if(this->sensorRange.length() > 1){
         int startCard = i;
         int increment, tempCoverage;
+        increment = (int) (startCard - estimateMax)/3;
         solution tempSol = vnsheuristic(*pData);
-        while(i < (startCard + startCard/2)){
-            increment = startCard/3;
+        while(i < estimateMax){
             if(increment < 1)
                 increment = 1;
             i += increment;
@@ -238,7 +238,7 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         CoveragePlugin* cppResult = new CoveragePlugin();
         return engine->newQObject(context->thisObject(), cppResult);
     }
-    else if(context->argumentCount()==8 && context->argument(3).isArray()) {
+    else if(context->argumentCount()==9 && context->argument(3).isArray()) {
         CoveragePlugin* cppResult = new CoveragePlugin();
         QList<RVector> fP;
         QList<RVector> cand;
@@ -247,6 +247,7 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         QVector<int> range;
         QVector<int> cost;
         float aimedCoverage;
+        int technique;
         bool wantCandidates;
 
         // convert ECMAScript parameters to C++ variables:
@@ -266,6 +267,8 @@ QScriptValue RSensorsPlugin::createCoveragePlugin(QScriptContext* context, QScri
         cppResult->roomSides = rs;
         REcmaHelper::fromScriptValue(engine, context->argument(7), cost);
         cppResult->sensorCost = cost;
+        technique = context->argument(8).toInteger();
+        cppResult->technique = technique;
         return engine->newQObject(context->thisObject(), cppResult);
     }
     else {

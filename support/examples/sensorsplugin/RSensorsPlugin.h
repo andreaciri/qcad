@@ -45,6 +45,7 @@ public:
     QVector<int> sensorCost;
     float aimedCoverage;
     bool wantCandidates;
+    int technique;
     QList<RVector> floorPoints;
     QList<RVector> candidates;
     QList<RVector> boundingBox;
