@@ -63,6 +63,10 @@ solution vnsheuristic(ProblemData& ins)
     //assert(isFeasible(ins,sol.sparseMC,sol.cost,true));
     qDebug("Obj= %8ld Iter= %8d Uncov= %8d Time= %8.3lf\n",(long) sol.cost,sol.sparseMC.size(),sol.uncoveredMR.size(),tempo);
 
+    if(ins.technique == 1){
+        return sol;
+    }
+
     qDebug("LS    : ");
     start = clock();
     localsearch(sol,totIter,HP.FirstBest,MaxTime);

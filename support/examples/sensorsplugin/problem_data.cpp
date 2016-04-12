@@ -41,6 +41,7 @@ ProblemData *LoadData (int boundingBox[4][2], QVector<int> range, QVector<int> c
     pPD->nr = nr;
     pPD->nc = nc;
     pPD->truenc = truenc;
+    pPD->technique = 0;
     pPD->nm = 1;
     pPD->nt = nt;
 

@@ -12,6 +12,7 @@ struct _problemdata
   int nm;
   int nt;           //Number of types
   int truenc;       //True number of column locations
+  int technique;    //Single Coverage: 0; Triangulation: 1; Fingerprinting: 2.
   int **rows;       //Each item is a coordinate [x,y] that represent a demand center
   int **columns;    //Each item is a coordinate [x,y] that represent a candidate facility site
   int ***Copertura; // Sparse vector including the indexes of the rows covered by each mode and column

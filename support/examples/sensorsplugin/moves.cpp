@@ -21,6 +21,13 @@ MoveEvaluation& MoveEvaluation::operator=(const MoveEvaluation& eval){
 }
 
 bool evaluateAdd(const solution& sol, const MC& mc, MoveEvaluation& eval){
+    if(sol.ins.technique == 0){
+        kCoverage = 1;
+    }
+    else if(sol.ins.technique == 1){
+        kCoverage = 3;
+    }
+
 	if(sol.cMode[mc.column].size() == sol.ins.b[mc.column] ||
 	   sol.mCol[mc.mode].size() == sol.ins.card[mc.mode]) return false;
 
@@ -29,13 +36,20 @@ bool evaluateAdd(const solution& sol, const MC& mc, MoveEvaluation& eval){
 	for(int i=1;i<=sol.ins.Copertura[mc.mode][mc.column][0];++i){
 		int row=sol.ins.Copertura[mc.mode][mc.column][i];
         // Reward evaluation
-        if(sol.usedMRC[mc.mode][row].empty())
-            eval.dCost+=sol.ins.weight[typeFromColumn(sol, mc)][row];
+        if(sol.kCoverage[row] < kCoverage);
+            eval.dCost+=sol.ins.weight[typeFromColumn(sol, mc)][row] + (kCoverage - sol.kCoverage[row]);
 	}
 	return true;
 }
 
 void makeAddMove(solution& sol, const MC& mc){
+    if(sol.ins.technique == 0){
+        kCoverage = 1;
+    }
+    else if(sol.ins.technique == 1){
+        kCoverage = 3;
+    }
+
 	assert(sol.denseMC[mc.mode][mc.column]==false);
 	assert(sol.sparseMC.find(mc)==sol.sparseMC.end());
 
@@ -43,13 +57,15 @@ void makeAddMove(solution& sol, const MC& mc){
 	sol.sparseMC.insert(mc);
 	for(int i=1;i<=sol.ins.Copertura[mc.mode][mc.column][0];++i){
 		int row=sol.ins.Copertura[mc.mode][mc.column][i];		
-        if(sol.usedMRC[mc.mode][row].empty()){
+        if(sol.usedMRC[mc.mode][row].size() < kCoverage){
 			MR mr(mc.mode,row);
             //assert(sol.sparseMR.find(mr) == sol.sparseMR.end());
             //assert(sol.uncoveredMR.find(mr) != sol.uncoveredMR.end());
             // single point covering
-			sol.sparseMR.insert(mr);
-			sol.uncoveredMR.erase(mr);
+            if(kCoverage == 1 || (kCoverage == 3 && sol.kCoverage[row] == 2)){
+                sol.sparseMR.insert(mr);
+                sol.uncoveredMR.erase(mr);
+            }
             sol.kCoverage[row]++;
             //Reward computation
             sol.cost+=sol.ins.weight[typeFromColumn(sol, mc)][row];
