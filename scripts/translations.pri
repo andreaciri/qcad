@@ -16,3 +16,6 @@ TRANSLATIONS = \
     $${TSDIR}/$${NAME}_sv.ts \
     $${TSDIR}/$${NAME}_zh_CN.ts \
     $${TSDIR}/$${NAME}_zh_TW.ts
+
+FORMS += \
+    $$PWD/SmartBuilding/SensorsWidget/loading.ui

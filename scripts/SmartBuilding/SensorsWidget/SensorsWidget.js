@@ -45,6 +45,11 @@ SensorsWidget.prototype.beginEvent = function() {
     // set in Qt Designer:
     WidgetFactory.restoreState(dialog);
 
+    var comboTechnique = dialog.findChild("Technique");
+    comboTechnique.addItem("Single Coverage");
+    comboTechnique.addItem("Triangulation");
+    comboTechnique.addItem("Fingerprinting");
+
     // Display and execute the dialog:
     if (!dialog.exec()) {
         dialog.destroy();
@@ -55,6 +60,20 @@ SensorsWidget.prototype.beginEvent = function() {
     }
 
     // User hit OK. Store the new user input:
+    var progressDialog = new QProgressDialog(
+        qsTr("Please wait for optimal nodes allocation..."),
+        qsTr("Abort"), 0, 10, this);
+
+    progressDialog.windowTitle = qsTr("Please wait for optimal nodes allocation...");
+    progressDialog.originalLabelText = progressDialog.labelText;
+    progressDialog.windowModality = Qt.WindowModal;
+    progressDialog.setCancelButton(null);
+    // show dialog after 0.5 second:
+    progressDialog.minimumDuration = 0;
+    progressDialog.value++;
+    progressDialog.value++;
+    QCoreApplication.processEvents();
+
     WidgetFactory.saveState(dialog);
     var widgets = getWidgets(dialog);
     var numberOfModes = widgets["Modes"].value;
@@ -69,6 +88,7 @@ SensorsWidget.prototype.beginEvent = function() {
 
     // Print the user input to the QCAD console:
     var appWin = EAction.getMainWindow();
+    appWin.handleUserMessage("Covering Technique: " + comboTechnique.currentText);
     appWin.handleUserMessage("Sensor Range: " + sensorRange[0]);
 
     var allEntities = this.getDocument().queryAllEntities(false, false, RS.EntityAll);
@@ -93,8 +113,6 @@ SensorsWidget.prototype.beginEvent = function() {
                 rooms[roomId] = [];
             }
             rooms[roomId][orderInRoom] = ent.getStartPoint();
-            appWin.handleUserMessage("ROOM ID: " + roomId);
-            appWin.handleUserMessage("ORDER IN ROOM: " + orderInRoom);
         }
         else if(ent.getCustomProperty("QCAD", "isCandidate", null)) {
             candidates.push(ent.getPosition());
@@ -122,14 +140,18 @@ SensorsWidget.prototype.beginEvent = function() {
 
     var boundingBox = this.getDocument().getBoundingBox().getCorners2d();
     appWin.handleUserMessage("Floorplan entites (walls): " + rooms);
-    appWin.handleUserMessage("Candidate points: " + candidates);
+    if(candidates.lenght > 0)
+        appWin.handleUserMessage("Candidate points: " + candidates);
     appWin.handleUserMessage("Bounding box corners: " + boundingBox);
     appWin.handleUserMessage("Aimed percentage of coverage: " + aimedCoverage +"%");
     appWin.handleUserMessage("Using candidate points: " + (wantCandidates? "Yes" : "No"));
-    debugger;
+    
     var coveragePlugin = new CoveragePlugin(sensorRange, roomsArray, candidates, boundingBox, 
-                                wantCandidates, aimedCoverage, roomSides, sensorCost);
+                                wantCandidates, aimedCoverage, roomSides, sensorCost, comboTechnique.currentIndex);
     var resultJSON = coveragePlugin.start();
+
+    //loading.destroy();
+    progressDialog.reset();
 
     if(errorCheck(resultJSON)){
         // RESULT HAS ERROR
@@ -137,9 +159,9 @@ SensorsWidget.prototype.beginEvent = function() {
         return;
     }
     var resultObj = eval('(' + resultJSON + ')');
-    appWin.handleUserMessage("resultJSON: " + resultJSON);
+    appWin.handleUserMessage("Optimal Allocation: " + resultJSON);
     appWin.handleUserMessage("COVERAGE RATE: " + (resultObj.coverage*100)+"%");
-    appWin.handleUserMessage("FIRST COO: " + resultObj.coordinates[0].x);
+
 
     var resultView = new RAddObjectsOperation();
     for(i=0; i<resultObj.coordinates.length; i++){
